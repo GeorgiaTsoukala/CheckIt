@@ -1,9 +1,55 @@
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '../firebase'
+import { useNavigation } from '@react-navigation/native'
 
 const LoginScreen = () => {
   const[email, setEmail] = useState('')
   const[password, setPassword] = useState('')
+
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigation.navigate("Home");        
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const handleRegister = async () => {
+    try {
+      const response = await createUserWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
+
+      const userInfo = {
+        email: email.trim(),
+      };
+
+      //create an instance at the "users" database , uid as key
+      // await setDoc(doc(datab, "users", response.user.uid), userInfo);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      const user = await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   return (
     <KeyboardAvoidingView 
@@ -29,13 +75,13 @@ const LoginScreen = () => {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-         onPress={() => {}}
+         onPress={handleLogin}
          style={styles.button}
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
         <TouchableOpacity
-         onPress={() => {}}
+         onPress={handleRegister}
          style={[styles.button, styles.buttonOutline]}
         >
           <Text style={styles.buttonOutlineText}>Register</Text>
