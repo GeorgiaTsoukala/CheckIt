@@ -4,8 +4,7 @@ import React from 'react'
 const VisualizationsScreen = () => {
   return (
     <View>
-      <Text>Home Screen!?</Text>
-      <Text>Hello from N :)</Text>
+      <Text>Vis Screen</Text>
     </View>
   )
 }

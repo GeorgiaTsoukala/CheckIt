@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../firebase'
 import { useNavigation } from '@react-navigation/native'
+import BottomNavigation from '../bottomNavigation'
 
 const LoginScreen = () => {
   const[email, setEmail] = useState('')
@@ -13,7 +14,7 @@ const LoginScreen = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        navigation.navigate("Home");        
+        navigation.replace('BottomNavigation'); //.navigate("Home");        
       }
     });
 

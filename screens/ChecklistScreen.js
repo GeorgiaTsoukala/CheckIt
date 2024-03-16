@@ -4,8 +4,7 @@ import React from 'react'
 const ChecklistScreen = () => {
   return (
     <View>
-      <Text>Home Screen!?</Text>
-      <Text>Hello from N :)</Text>
+      <Text>Checklist Screen!?</Text>
     </View>
   )
 }
