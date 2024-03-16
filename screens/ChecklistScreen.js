@@ -3,7 +3,7 @@ import React from 'react'
 
 const ChecklistScreen = () => {
   return (
-    <View>
+    <View style = {styles.body}>
       <Text>Checklist Screen!?</Text>
     </View>
   )
@@ -11,4 +11,8 @@ const ChecklistScreen = () => {
 
 export default ChecklistScreen
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    body: {
+    paddingTop: 50,
+  }
+})

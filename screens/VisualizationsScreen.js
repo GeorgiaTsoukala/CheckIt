@@ -3,7 +3,7 @@ import React from 'react'
 
 const VisualizationsScreen = () => {
   return (
-    <View>
+    <View style = {styles.body}>
       <Text>Vis Screen</Text>
     </View>
   )
@@ -11,4 +11,8 @@ const VisualizationsScreen = () => {
 
 export default VisualizationsScreen
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    body: {
+    paddingTop: 50,
+  }
+})

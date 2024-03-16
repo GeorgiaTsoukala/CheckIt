@@ -3,7 +3,7 @@ import React from 'react'
 
 const HomeScreen = () => {
   return (
-    <View>
+    <View style = {styles.body}>
       <Text>Home Screen!?</Text>
       <Text>Hello from N :)</Text>
     </View>
@@ -12,4 +12,8 @@ const HomeScreen = () => {
 
 export default HomeScreen
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  body: {
+    paddingTop: 50,
+  }
+})
