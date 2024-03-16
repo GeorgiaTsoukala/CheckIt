@@ -12,7 +12,7 @@ const ChecklistScreen = () => {
 export default ChecklistScreen
 
 const styles = StyleSheet.create({
-    body: {
+  body: {
     paddingTop: 50,
   }
 })

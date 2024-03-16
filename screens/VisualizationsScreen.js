@@ -12,7 +12,7 @@ const VisualizationsScreen = () => {
 export default VisualizationsScreen
 
 const styles = StyleSheet.create({
-    body: {
+  body: {
     paddingTop: 50,
   }
 })

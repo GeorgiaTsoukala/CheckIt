@@ -16,14 +16,14 @@ const BottomNavigation = () => {
         tabBarHideOnKeyboard: true,
         tabBarShowLabel: false,
         tabBarStyle: {
-          marginBottom: 10,
-          marginLeft: 10,
-          marginRight: 10,
-          elevation: 0,
+          marginBottom: 16,
+          marginLeft: 16,
+          marginRight: 16,
+          // elevation: 0,
           borderRadius: 15,
-          backgroundColor: "gainsboro",
+          // backgroundColor: "gainsboro",
           height: 60,
-        //   ...styles.shadow,
+          ...styles.mybackground,
         },
       }}
     >
@@ -44,13 +44,13 @@ const BottomNavigation = () => {
                 size={24}
                 style={{
                   alignSelf: "center",
-                  color: focused ? "#267777" : "black",
+                  color: focused ? "white" : "black",
                 }}
               />
               <Text
                 style={{
                   alignSelf: "center",
-                  color: focused ? "#267777" : "black",
+                  color: focused ? "white" : "black",
                 }}
               >
                 Home
@@ -70,13 +70,13 @@ const BottomNavigation = () => {
                 size={24}
                 style={{
                   alignSelf: "center",
-                  color: focused ? "#267777" : "black",
+                  color: focused ? "white" : "black",
                 }}
               />
               <Text
                 style={{
                   alignSelf: "center",
-                  color: focused ? "#267777" : "black",
+                  color: focused ? "white" : "black",
                 }}
               >
                 Checklist
@@ -96,14 +96,14 @@ const BottomNavigation = () => {
                 size={focused ? 30 : 24}
                 style={{
                   alignSelf: "center",
-                  color: focused ? "#267777" : "black",
+                  color: focused ? "white" : "black",
                 }}
               />
               <Text
                 style={{
                     fontWeight: focused ? '700' : '500',
                   alignSelf: "center",
-                  color: focused ? "#267777" : "black",
+                  color: focused ? "white" : "black",
                 }}
               >
                 Reflection
@@ -117,3 +117,9 @@ const BottomNavigation = () => {
 };
 
 export default BottomNavigation;
+
+const styles = StyleSheet.create({
+  mybackground: {
+    backgroundColor: '#aa7dc6',
+  }
+})
