@@ -70,11 +70,11 @@ const styles = StyleSheet.create({
     fontSize: 32,
   },
   subtitle: {
+    width: '70%',
     marginTop: 32,
-    fontSize: 18,
-    textAlign: 'center',
-    marginHorizontal: 60,
     marginBottom: 50,
+    fontSize: 18,
+    textAlign: 'center', 
   },
   categoryTxt: {
     fontSize: 32,
@@ -112,6 +112,8 @@ const styles = StyleSheet.create({
   button: {
     width: '60%',
     backgroundColor: '#AA7DC6',
+    // position: 'absolute',
+    // bottom: 0,
     padding: 15,
     borderRadius: 50,
     alignItems: 'center',
