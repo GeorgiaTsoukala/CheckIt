@@ -9,11 +9,17 @@ const LoginScreen = () => {
   const[email, setEmail] = useState('')
   const[password, setPassword] = useState('')
 
+  // const [isRegistered, setIsRegistered] = useState(false);
+
   const navigation = useNavigation();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        // const userData = await firestore().collection('users').doc(user.uid).get();
+        // const registrationStatus = userData.data()?.registrationStatus || false;
+        // setIsRegistered(registrationStatus);
+
         navigation.replace('BottomNavigation'); //.navigate("Home");        
       }
     });
