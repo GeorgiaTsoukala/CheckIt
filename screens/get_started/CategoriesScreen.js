@@ -42,7 +42,7 @@ const ChecklistScreen = () => {
         </View>
       ))}
 
-      <View style={styles.center}>
+      <View style={[styles.center, styles.btnContainer]}>
         <TouchableOpacity
           onPress={() => {navigation.navigate("IconGetStarted")}}
           style={styles.button}
@@ -121,5 +121,10 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize: 20,
     fontWeight: '500',
+  },
+  btnContainer: {
+    position: 'absolute', 
+    bottom: 30, 
+    width: '100%'
   },
 });

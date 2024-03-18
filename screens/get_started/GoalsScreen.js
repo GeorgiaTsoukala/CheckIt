@@ -2,6 +2,8 @@ import { StyleSheet, Text, TouchableOpacity, View, Dimensions, Image, FlatList }
 import React, { useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
+import { AntDesign } from '@expo/vector-icons';
+import { reload } from 'firebase/auth';
 
 const GoalsScreen = () => {
   const navigation = useNavigation();
@@ -38,8 +40,13 @@ const GoalsScreen = () => {
                 onPress={() => handleToggle(index, goalIndex)} 
                 style={styles.containerCheckBox}
               >
-                {goalStates[index][goalIndex] ? <Image source={require('../../assets/checked.png')}/> :
-                <View style={styles.checkBox} />}
+                {goalStates[index][goalIndex] 
+                ? 
+                  // <View style={styles.checkBoxChecked}>
+                  //   <AntDesign name="check" size={24} color="white" />
+                  // </View>
+                  <AntDesign name="checksquare" size={24} color="#8E2EA6" />
+                : <View style={styles.checkBox} />}
               </TouchableOpacity>
               <Text style={styles.goalTxt}>{goal}</Text>
             </View>
@@ -70,15 +77,15 @@ const GoalsScreen = () => {
           dotsLength={data.length}
           activeDotIndex={page}
           carouselRef={carouselRef}
-          containerStyle={{ marginTop: -15 }}
-          dotStyle={styles.dotStyle}
-          inactiveDotStyle={styles.inactiveDotStyle}
+          containerStyle={{ marginTop: -20 }}
+          dotStyle={{width: 10, height: 10, borderRadius: 10, backgroundColor: '#8E2EA6'}}
+          inactiveDotStyle={{backgroundColor: '#D0B8E6'}}
           inactiveDotOpacity={0.6}
-          inactiveDotScale={0.8}
+          inactiveDotScale={0.7}
         />
       </View>
 
-      <View style={styles.center}>
+      <View style={[styles.center, styles.btnContainer]}>
         <TouchableOpacity
           onPress={() => {console.log(`${goalStates}`)/*navigation.replace('BottomNavigation');*/}}
           style={styles.button}
@@ -97,6 +104,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 50,
     backgroundColor: '#F6E8F3',
+    position: 'relative'
   },
   center: {
     alignItems: 'center',
@@ -118,10 +126,17 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 50,
     alignItems: 'center',
+    position: 'absolute',
+    bottom: 30
   },
   btnText: {
     fontSize: 20,
     fontWeight: '500',
+  },
+  btnContainer: {
+    position: 'absolute', 
+    bottom: 0, 
+    width: '100%'
   },
   categoryTxt: {
     fontSize: 32,
@@ -142,13 +157,14 @@ const styles = StyleSheet.create({
     marginBottom: 30
   },
   goalContainer: {
+    // width: '90%',
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 5,
   },
   goalTxt: {
     fontSize: 16,
-    marginRight: 10,
+    marginLeft: 10,
   },
   containerCheckBox: {
     flexDirection: 'row',
@@ -162,6 +178,9 @@ const styles = StyleSheet.create({
     borderColor: '#d0b8e6',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
-  }
+  },
+  // checkBoxChecked: {
+  //   backgroundColor: '#8E2EA6',
+  //   borderRadius: 5
+  // }
 });

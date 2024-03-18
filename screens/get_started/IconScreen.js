@@ -16,7 +16,7 @@ const IconScreen = () => {
         <Image source={require('../../assets/get_started_icon.png')} />
       </View>
 
-      <View style={styles.center}>
+      <View style={[styles.center, styles.btnContainer]}>
         <TouchableOpacity
           onPress={() => {navigation.navigate("Goals")}}
           style={styles.button}
@@ -60,5 +60,10 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize: 20,
     fontWeight: '500',
+  },
+  btnContainer: {
+    position: 'absolute', 
+    bottom: 30, 
+    width: '100%'
   },
 })
