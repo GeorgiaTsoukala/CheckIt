@@ -14,9 +14,8 @@ const GoalsScreen = () => {
     // Add more categories as needed
   ];
 
-  // const [goalStates, setGoalStates] = useState([...Array(data.length)].map(() => []));
   const [goalStates, setGoalStates] = useState(data.map(category => category.goals.map(() => false)));
-
+  const [page, setPage] = useState(0);
 
   const handleToggle = (carouselIndex, goalIndex) => {
     const newGoalStates = [...goalStates];
@@ -60,6 +59,7 @@ const GoalsScreen = () => {
       <View>
         <Carousel
           ref={carouselRef}
+          onSnapToItem={(page) => setPage(page)}
           data={data}
           renderItem={renderItem}
           sliderWidth={Dimensions.get('window').width}
@@ -68,7 +68,8 @@ const GoalsScreen = () => {
         />
         <Pagination
           dotsLength={data.length}
-          activeDotIndex={carouselRef.current?.currentIndex || 0}
+          activeDotIndex={page}
+          carouselRef={carouselRef}
           containerStyle={{ marginTop: -15 }}
           dotStyle={styles.dotStyle}
           inactiveDotStyle={styles.inactiveDotStyle}
