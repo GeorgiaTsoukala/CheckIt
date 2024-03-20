@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
-    "@react-navigation/bottom-tabs": "^6.5.19",
+    "@react-navigation/bottom-tabs": "^6.5.20",
     "@react-navigation/native": "^6.1.16",
     "@react-navigation/native-stack": "^6.9.25",
     "deprecated-react-native-prop-types": "^5.0.0",

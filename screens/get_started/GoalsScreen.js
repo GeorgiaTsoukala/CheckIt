@@ -1,19 +1,39 @@
 import { StyleSheet, Text, TouchableOpacity, View, Dimensions, Image, FlatList } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import { AntDesign } from '@expo/vector-icons';
 import { reload } from 'firebase/auth';
+import { auth, datab } from '../../firebase';
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 
 const GoalsScreen = () => {
   const navigation = useNavigation();
   const carouselRef = useRef(null);
 
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    setScreen();
+  }, []);
+
+  const setScreen = async () => {
+    //get documents of category names from the categories subcollection to display
+    const querySnapshot = await getDocs(collection(datab, "users", auth.currentUser.uid, "categories"));
+    const categoryList = [];
+    querySnapshot.forEach((doc) => {
+      categoryList.push(doc.id);  
+    });
+    setCategories(categoryList);
+  };
+
   const data = [
     { title: 'Health', goals: ['Meditated', 'Exercised', 'Drunk enough water', 'Got enough sleep', 'Ate healthy'] },
     { title: 'Productivity', goals: ['Studied', 'Worked', 'Did hobbies', 'Scheduled my time', 'Reserved time for important tasks'] },
     { title: 'Intellect', goals: ['Went to cinema', 'Went to theater', 'Read a book', 'Read the news'] },
-    // Add more categories as needed
+    { title: 'Finance', goals: ['Saved some money', 'No impulse buys'] },
+    { title: 'Creativity', goals: ['Did some DIY', 'Painted', 'Crocheting'] }
+    // Add more categories if needed
   ];
 
   const [goalStates, setGoalStates] = useState(data.map(category => category.goals.map(() => false)));
@@ -23,6 +43,17 @@ const GoalsScreen = () => {
     const newGoalStates = [...goalStates];
     newGoalStates[carouselIndex][goalIndex] = !newGoalStates[carouselIndex][goalIndex];
     setGoalStates(newGoalStates);
+  };
+
+  const handleDone = async () => {
+    try {
+      
+
+      //navigate to next screen
+      navigation.navigate("BottomNavigation")
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   const renderItem = ({ item: { title, goals }, index }) => {
@@ -67,14 +98,14 @@ const GoalsScreen = () => {
         <Carousel
           ref={carouselRef}
           onSnapToItem={(page) => setPage(page)}
-          data={data}
+          data={data.filter(category => categories.includes(category.title))}
           renderItem={renderItem}
           sliderWidth={Dimensions.get('window').width}
           itemWidth={Dimensions.get('window').width * 0.8}
           layout="default"
         />
         <Pagination
-          dotsLength={data.length}
+          dotsLength={data.filter(category => categories.includes(category.title)).length}
           activeDotIndex={page}
           carouselRef={carouselRef}
           containerStyle={{ marginTop: -20 }}
@@ -87,7 +118,7 @@ const GoalsScreen = () => {
 
       <View style={[styles.center, styles.btnContainer]}>
         <TouchableOpacity
-          onPress={() => {console.log(`${goalStates}`)/*navigation.replace('BottomNavigation');*/}}
+          onPress={handleDone}
           style={styles.button}
         >
           <Text style={styles.btnText}>Done</Text>

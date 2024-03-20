@@ -18,14 +18,11 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreen} /> 
         <Stack.Screen name="Categories" component={CategoriesScreen}/>
         <Stack.Screen name="IconGetStarted" component={IconScreen}/>
-        <Stack.Screen name="Goals" component={GoalsScreen}/>
-        {/* <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreen} /> */}
+        <Stack.Screen name="Goals" component={GoalsScreen}/>       
         <Stack.Screen name="BottomNavigation" component={BottomNavigation}/>
-        {/* <Stack.Screen name="Home" component={HomeScreen} />     
-        <Stack.Screen name="Checklist" component={ChecklistScreen} /> 
-        <Stack.Screen name="Visualizations" component={VisualizationsScreen} />     */}
       </Stack.Navigator>
     </NavigationContainer>
   );

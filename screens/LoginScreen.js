@@ -1,9 +1,10 @@
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../firebase'
+import { auth, datab } from '../firebase'
 import { useNavigation } from '@react-navigation/native'
 import BottomNavigation from '../bottomNavigation'
+import { doc, setDoc } from 'firebase/firestore'
 
 const LoginScreen = () => {
   const[email, setEmail] = useState('')
@@ -20,7 +21,7 @@ const LoginScreen = () => {
         // const registrationStatus = userData.data()?.registrationStatus || false;
         // setIsRegistered(registrationStatus);
 
-        navigation.replace('BottomNavigation'); //.navigate("Home");        
+        navigation.replace('Categories'); //.navigate("Home");        
       }
     });
 
@@ -40,7 +41,7 @@ const LoginScreen = () => {
       };
 
       //create an instance at the "users" database , uid as key
-      // await setDoc(doc(datab, "users", response.user.uid), userInfo);
+      await setDoc(doc(datab, "users", response.user.uid), userInfo);
     } catch (error) {
       alert(error.message);
     }

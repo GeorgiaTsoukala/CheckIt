@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import { auth, datab } from '../../firebase';
 
 const categoriesData = [
   { name: 'Productivity', isChecked: false },
@@ -19,6 +21,25 @@ const ChecklistScreen = () => {
     const updatedCategories = [...categories];
     updatedCategories[index].isChecked = !updatedCategories[index].isChecked;
     setCategories(updatedCategories);
+  };
+
+  const handleNext = async () => {
+    try {
+      //create list of selected categories
+      let checkedCategories = categories.filter(category => category.isChecked).map(category => category.name);
+      
+      //make a subcollection in users database with the selected categories as documents
+      const promises = checkedCategories.map(async (categoryName) => {
+        await setDoc(doc(datab, "users", auth.currentUser.uid, "categories", categoryName), {});
+      });
+    
+      await Promise.all(promises);
+
+      //navigate to next screen
+      navigation.navigate("IconGetStarted")
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   return (
@@ -44,7 +65,7 @@ const ChecklistScreen = () => {
 
       <View style={[styles.center, styles.btnContainer]}>
         <TouchableOpacity
-          onPress={() => {navigation.navigate("IconGetStarted")}}
+          onPress={handleNext}
           style={styles.button}
         >
           <Text style={styles.btnText}>Next</Text>
