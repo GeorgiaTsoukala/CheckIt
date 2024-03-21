@@ -5,39 +5,51 @@ import Carousel, { Pagination } from 'react-native-snap-carousel';
 import { AntDesign } from '@expo/vector-icons';
 import { reload } from 'firebase/auth';
 import { auth, datab } from '../../firebase';
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
 
 const GoalsScreen = () => {
   const navigation = useNavigation();
   const carouselRef = useRef(null);
 
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([]); //stores selected categories
+  const [filteredData, setFilteredData] = useState([]); //stores data (title:..., goals:[...]) of chosen categories
+  const [goalStates, setGoalStates] = useState({}); //stores checkboxes states
+  const [page, setPage] = useState(0); //stores carousel paging
 
   useEffect(() => {
-    setScreen();
+    const fetchCategories = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(datab, "users", auth.currentUser.uid, "categories"));
+        const categoryList = [];
+        querySnapshot.forEach((doc) => {
+          categoryList.push(doc.id);  
+        });
+        setCategories(categoryList);
+      } catch (error) {
+        console.error('Error fetching selected categories:', error);
+      }
+    }
+
+    fetchCategories();
+
   }, []);
 
-  const setScreen = async () => {
-    //get documents of category names from the categories subcollection to display
-    const querySnapshot = await getDocs(collection(datab, "users", auth.currentUser.uid, "categories"));
-    const categoryList = [];
-    querySnapshot.forEach((doc) => {
-      categoryList.push(doc.id);  
-    });
-    setCategories(categoryList);
-  };
+  useEffect(() => {
+    const data = [
+      { title: 'Health', goals: ['Meditate', 'Exercise', 'Drink enough water', 'Get enough sleep', 'Eat healthy'] },
+      { title: 'Productivity', goals: ['Study', 'Work', 'Do hobbies', 'Schedule my time', 'Reserve time for important tasks'] },
+      { title: 'Intellect', goals: ['Go to cinema', 'Go to theater', 'Read a book', 'Read the news'] },
+      { title: 'Finance', goals: ['Save some money', 'No impulse buys'] },
+      { title: 'Creativity', goals: ['Do some DIY', 'Paint', 'Crochet'] }
+      // Add more categories if needed
+    ];
+   
+    const filteredD = data.filter(category => categories.includes(category.title))
+    setFilteredData(filteredD)
 
-  const data = [
-    { title: 'Health', goals: ['Meditated', 'Exercised', 'Drunk enough water', 'Got enough sleep', 'Ate healthy'] },
-    { title: 'Productivity', goals: ['Studied', 'Worked', 'Did hobbies', 'Scheduled my time', 'Reserved time for important tasks'] },
-    { title: 'Intellect', goals: ['Went to cinema', 'Went to theater', 'Read a book', 'Read the news'] },
-    { title: 'Finance', goals: ['Saved some money', 'No impulse buys'] },
-    { title: 'Creativity', goals: ['Did some DIY', 'Painted', 'Crocheting'] }
-    // Add more categories if needed
-  ];
+    setGoalStates(filteredD.map(category => category.goals.map(() => false)))
 
-  const [goalStates, setGoalStates] = useState(data.map(category => category.goals.map(() => false)));
-  const [page, setPage] = useState(0);
+  }, [categories]) 
 
   const handleToggle = (carouselIndex, goalIndex) => {
     const newGoalStates = [...goalStates];
@@ -47,7 +59,16 @@ const GoalsScreen = () => {
 
   const handleDone = async () => {
     try {
-      
+
+      for (let i = 0; i < filteredData.length; i++) {
+        // extract selected goals from filteredData & goalStates
+        const { title, goals } = filteredData[i];
+        const selectedGoals = goals.filter((goal, index) => goalStates[i][index]);
+        console.log(title, selectedGoals)
+
+        // save selected goals in the corresponding category document in categories collection
+        await setDoc(doc(datab, "users", auth.currentUser.uid, "categories", title), {goals: selectedGoals});
+      }
 
       //navigate to next screen
       navigation.navigate("BottomNavigation")
@@ -73,9 +94,6 @@ const GoalsScreen = () => {
               >
                 {goalStates[index][goalIndex] 
                 ? 
-                  // <View style={styles.checkBoxChecked}>
-                  //   <AntDesign name="check" size={24} color="white" />
-                  // </View>
                   <AntDesign name="checksquare" size={24} color="#8E2EA6" />
                 : <View style={styles.checkBox} />}
               </TouchableOpacity>
@@ -98,14 +116,14 @@ const GoalsScreen = () => {
         <Carousel
           ref={carouselRef}
           onSnapToItem={(page) => setPage(page)}
-          data={data.filter(category => categories.includes(category.title))}
+          data={filteredData}
           renderItem={renderItem}
           sliderWidth={Dimensions.get('window').width}
           itemWidth={Dimensions.get('window').width * 0.8}
           layout="default"
         />
         <Pagination
-          dotsLength={data.filter(category => categories.includes(category.title)).length}
+          dotsLength={filteredData.length}
           activeDotIndex={page}
           carouselRef={carouselRef}
           containerStyle={{ marginTop: -20 }}
@@ -188,7 +206,6 @@ const styles = StyleSheet.create({
     marginBottom: 30
   },
   goalContainer: {
-    // width: '90%',
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 5,
@@ -209,9 +226,5 @@ const styles = StyleSheet.create({
     borderColor: '#d0b8e6',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  // checkBoxChecked: {
-  //   backgroundColor: '#8E2EA6',
-  //   borderRadius: 5
-  // }
+  }
 });
