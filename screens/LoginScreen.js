@@ -20,8 +20,10 @@ const LoginScreen = () => {
 
         //if the user is already registered, go to home page        
         if (response?.data()?.setUp == true) {
-          navigation.navigate("BottomNavigation"); 
+          //replace the Login screen in the stack with BottomNavigation and navigate there
+          navigation.replace("BottomNavigation"); 
         } else { //else the user needs to go through the set up process first
+          //replace the Login screen in the stack with Categories and navigate there
           navigation.replace('Categories');   
         }    
       }

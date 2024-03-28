@@ -35,8 +35,8 @@ const ChecklistScreen = () => {
     
       await Promise.all(promises);
 
-      //navigate to next screen
-      navigation.navigate("IconGetStarted")
+      //place Goals screen in the stack, navigate there (with the ability to go back)
+      navigation.navigate("Goals");
     } catch (error) {
       alert(error.message);
     }

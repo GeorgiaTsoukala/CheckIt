@@ -61,11 +61,11 @@ const GoalsScreen = () => {
     try {
 
       for (let i = 0; i < filteredData.length; i++) {
-        // extract selected goals from filteredData & goalStates
+        //extract selected goals from filteredData & goalStates
         const { title, goals } = filteredData[i];
         const selectedGoals = goals.filter((goal, index) => goalStates[i][index]);
 
-        // save selected goals in the corresponding category document in categories collection
+        //save selected goals in the corresponding category document in categories collection
         await setDoc(doc(datab, "users", auth.currentUser.uid, "categories", title), {goals: selectedGoals});
 
         //update the users database with a setUp status = true
@@ -73,8 +73,11 @@ const GoalsScreen = () => {
         await updateDoc(doc(datab, "users", auth.currentUser.uid), updatedFields);
       }
 
-      //navigate to next screen
-      navigation.navigate("BottomNavigation")
+      //remove existing screens from the stack, add BottomNavigation to it and navigate there
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'BottomNavigation' }]
+      });
     } catch (error) {
       alert(error.message);
     }
