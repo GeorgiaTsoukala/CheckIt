@@ -3,8 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
 import { auth, datab } from '../firebase'
 import { useNavigation } from '@react-navigation/native'
-import BottomNavigation from '../bottomNavigation'
-import { doc, setDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 
 const LoginScreen = () => {
   const[email, setEmail] = useState('')
@@ -17,11 +16,14 @@ const LoginScreen = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // const userData = await firestore().collection('users').doc(user.uid).get();
-        // const registrationStatus = userData.data()?.registrationStatus || false;
-        // setIsRegistered(registrationStatus);
+        const response = await getDoc(doc(datab, "users", auth.currentUser.uid));
 
-        navigation.replace('Categories'); //.navigate("Home");        
+        //if the user is already registered, go to home page        
+        if (response?.data()?.setUp == true) {
+          navigation.navigate("BottomNavigation"); 
+        } else { //else the user needs to go through the set up process first
+          navigation.replace('Categories');   
+        }    
       }
     });
 
@@ -38,6 +40,7 @@ const LoginScreen = () => {
 
       const userInfo = {
         email: email.trim(),
+        setUp: false
       };
 
       //create an instance at the "users" database , uid as key

@@ -5,7 +5,7 @@ import Carousel, { Pagination } from 'react-native-snap-carousel';
 import { AntDesign } from '@expo/vector-icons';
 import { reload } from 'firebase/auth';
 import { auth, datab } from '../../firebase';
-import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
 
 const GoalsScreen = () => {
   const navigation = useNavigation();
@@ -64,10 +64,13 @@ const GoalsScreen = () => {
         // extract selected goals from filteredData & goalStates
         const { title, goals } = filteredData[i];
         const selectedGoals = goals.filter((goal, index) => goalStates[i][index]);
-        console.log(title, selectedGoals)
 
         // save selected goals in the corresponding category document in categories collection
         await setDoc(doc(datab, "users", auth.currentUser.uid, "categories", title), {goals: selectedGoals});
+
+        //update the users database with a setUp status = true
+        let updatedFields = {setUp: true};
+        await updateDoc(doc(datab, "users", auth.currentUser.uid), updatedFields);
       }
 
       //navigate to next screen
