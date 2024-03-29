@@ -1,15 +1,14 @@
 import { StyleSheet, Text, Dimensions, TouchableOpacity, View, TouchableWithoutFeedback, FlatList } from 'react-native'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState} from 'react'
 import { collection, getDocs } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
 import moment from 'moment';
-import Swiper from 'react-native-swiper';
 import { AntDesign } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
 const ChecklistScreen = () => {
-  const [value, setValue] = useState(new Date());
+  const [value, setValue] = useState(new Date()); //keeps today's date
 
   const mydays = React.useMemo(() => {
     const days = [];
@@ -41,6 +40,7 @@ const ChecklistScreen = () => {
         });
 
         setCatGoals(categoryGoals);
+        setCheckboxStates(new Array(categoryGoals['Health'].length).fill(false))
       } catch (error) {
         console.error('Error fetching selected categories and goals:', error);
       }
@@ -50,12 +50,32 @@ const ChecklistScreen = () => {
 
   }, []);
 
+  // State to track the checkbox states
+  const [checkboxStates, setCheckboxStates] = useState([]);
+
+  // Function to update checkbox states
+  const handleCheckboxToggle = (index) => {
+    const newCheckboxStates = [...checkboxStates];
+    newCheckboxStates[index] = !newCheckboxStates[index]
+    setCheckboxStates(newCheckboxStates);
+  };
+
   // call the handleNext when you are done with the checklist
 
   const handleNext = () => {
     // navigation.navigate("MoodPage")
 
-    console.log(catGoals)
+    // console.log(catGoals['Health'])
+    // const now = new Date();
+    // console.log(now.toString()); // Fri Mar 29 2024 20:17:06 GMT+0100
+    // console.log(now.toDateString()); // Fri Mar 29 2024
+    // console.log(now.toLocaleDateString()); // 3/29/2024
+
+    // const catGoalsHealth = [true, true, true, false, false];
+    // const checkboxStates = ["Meditate", "Exercise", "Drink enough water", "Get enough sleep", "Eat healthy"];
+
+    const dailyGoals = catGoals['Health'].filter((_, index) => checkboxStates[index]);
+    console.log(dailyGoals);
   }
 
   return (
@@ -111,7 +131,8 @@ const ChecklistScreen = () => {
         data={Object.entries(catGoals)}
         horizontal= {false}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => <Card category={item[0]} goals={item[1]} />}
+        renderItem={({ item }) => <Card category={item[0]} goals={item[1]} checkboxStates={checkboxStates || []} onToggle={(index) => handleCheckboxToggle(index)}/>}
+
         numColumns={2}
       />
 
@@ -256,7 +277,7 @@ const styles = StyleSheet.create({
   }
 })
 
-const Card = ({ category, goals }) => {
+const Card = ({ category, goals, checkboxStates, onToggle }) => {
   const cardIsActive = category == 'Health';
 
   return (   
@@ -269,12 +290,15 @@ const Card = ({ category, goals }) => {
           <View key={index} style={styles.goalContainer}>
             {cardIsActive ?
               <TouchableOpacity 
-                onPress={() => {}}//handleToggle(index, goalIndex)} 
+                onPress={() => onToggle(index)} 
                 style={styles.containerCheckBox}
               >
-                {/* check checkbox state  */}
+                {/* Display checkbox based on state */}
+                {checkboxStates[index] ?
                   <AntDesign name="checksquare" size={24} color="#8E2EA6" />
-                {/* : <View style={styles.checkBox} />  */}
+                  :
+                  <AntDesign name="checksquareo" size={24} color="#8E2EA6" />
+                }
               </TouchableOpacity>
               : <View style={styles.checkBoxInactive} />
             } 
