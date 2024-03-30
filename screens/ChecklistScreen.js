@@ -1,6 +1,6 @@
 import { StyleSheet, Text, Dimensions, TouchableOpacity, View, TouchableWithoutFeedback, FlatList } from 'react-native'
 import React, { useEffect, useState} from 'react'
-import { collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, setDoc } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
 import moment from 'moment';
 import { AntDesign } from '@expo/vector-icons';
@@ -62,20 +62,29 @@ const ChecklistScreen = () => {
 
   // call the handleNext when you are done with the checklist
 
-  const handleNext = () => {
-    // navigation.navigate("MoodPage")
-
+  const handleNext = async () => {
     // console.log(catGoals['Health'])
     // const now = new Date();
     // console.log(now.toString()); // Fri Mar 29 2024 20:17:06 GMT+0100
     // console.log(now.toDateString()); // Fri Mar 29 2024
     // console.log(now.toLocaleDateString()); // 3/29/2024
 
-    // const catGoalsHealth = [true, true, true, false, false];
-    // const checkboxStates = ["Meditate", "Exercise", "Drink enough water", "Get enough sleep", "Eat healthy"];
-
+    // const checkboxStates = [true, true, true, false, false];
+    // const catGoalsHealth = ["Meditate", "Exercise", "Drink enough water", "Get enough sleep", "Eat healthy"];
     const dailyGoals = catGoals['Health'].filter((_, index) => checkboxStates[index]);
     console.log(dailyGoals);
+
+    try {
+
+      //save selected daily goals in a dailydata document with auto generated doc id
+      await addDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {timestamp: new Date(), goals: dailyGoals});
+
+      // TODO show mood popup 
+      // navigation.navigate("MoodPage")
+
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   return (
@@ -119,11 +128,13 @@ const ChecklistScreen = () => {
       </View>
 
       {/* header */}
-      <View style={styles.center}>
-        {/* <Text style={styles.subtitle}>{value.toDateString()}</Text> */}
-        <Text style={styles.title}>How was your day?</Text>
-        <Text style={styles.subtitle}>What goals are you satisfied with for today?</Text>
-      </View>
+      {value.toDateString() === (new Date()).toDateString() &&
+        <View style={styles.center}>
+          {/* <Text style={styles.subtitle}>{value.toDateString()}</Text> */}
+          <Text style={styles.title}>How was your day?</Text>
+          <Text style={styles.subtitle}>What goals are you satisfied with for today?</Text>
+        </View>
+       }
 
       {/* category cards */}      
       <FlatList
