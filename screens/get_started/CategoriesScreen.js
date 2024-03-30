@@ -3,6 +3,7 @@ import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, datab } from '../../firebase';
+import globalStyles from '../../globalStyles';
 
 const categoriesData = [
   { name: 'Productivity', isChecked: false },
@@ -43,10 +44,10 @@ const ChecklistScreen = () => {
   };
 
   return (
-    <View style={styles.body}>
-      <View style={styles.center}>
-        <Text style={styles.title}>Get Started</Text>
-        <Text style={styles.subtitle}>Let's select the categories you want to keep track of every day!</Text>
+    <View style={globalStyles.body}>
+      <View style={globalStyles.center}>
+        <Text style={globalStyles.title}>Get Started</Text>
+        <Text style={globalStyles.subtitle}>Let's select the categories you want to keep track of every day!</Text>
       </View>
 
       {categories.map((category, index) => (
@@ -63,12 +64,12 @@ const ChecklistScreen = () => {
         </View>
       ))}
 
-      <View style={[styles.center, styles.btnContainer]}>
+      <View style={[globalStyles.center, globalStyles.btnContainer]}>
         <TouchableOpacity
           onPress={handleNext}
-          style={styles.button}
+          style={globalStyles.button}
         >
-          <Text style={styles.btnText}>Next</Text>
+          <Text style={globalStyles.btnText}>Next</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -78,25 +79,6 @@ const ChecklistScreen = () => {
 export default ChecklistScreen;
 
 const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-    paddingTop: 50,
-    backgroundColor: '#F6E8F3',
-  },
-  center: {
-    alignItems: 'center',
-  },
-  title: {
-    color: '#63086B',
-    fontSize: 32,
-  },
-  subtitle: {
-    width: '70%',
-    marginTop: 32,
-    marginBottom: 50,
-    fontSize: 18,
-    textAlign: 'center', 
-  },
   categoryTxt: {
     fontSize: 32,
     fontWeight: '700',
@@ -129,23 +111,5 @@ const styles = StyleSheet.create({
     height: 14,
     borderRadius: 7,
     backgroundColor: '#8E2EA6',
-  },
-  button: {
-    width: '60%',
-    backgroundColor: '#AA7DC6',
-    // position: 'absolute',
-    // bottom: 0,
-    padding: 15,
-    borderRadius: 50,
-    alignItems: 'center',
-  },
-  btnText: {
-    fontSize: 20,
-    fontWeight: '500',
-  },
-  btnContainer: {
-    position: 'absolute', 
-    bottom: 30, 
-    width: '100%'
   },
 });

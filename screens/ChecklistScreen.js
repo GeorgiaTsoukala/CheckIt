@@ -3,7 +3,8 @@ import React, { useEffect, useState} from 'react'
 import { addDoc, collection, doc, getDocs, setDoc } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
 import moment from 'moment';
-import { AntDesign } from '@expo/vector-icons';
+import globalStyles from '../globalStyles';
+import Card from './CardComponent';
 
 const { width } = Dimensions.get('window');
 
@@ -88,7 +89,7 @@ const ChecklistScreen = () => {
   }
 
   return (
-    <View style={styles.body}>
+    <View style={globalStyles.body}>
 
       {/* calendar */}
       <View style={styles.picker}>
@@ -129,10 +130,10 @@ const ChecklistScreen = () => {
 
       {/* header */}
       {value.toDateString() === (new Date()).toDateString() &&
-        <View style={styles.center}>
+        <View style={globalStyles.center}>
           {/* <Text style={styles.subtitle}>{value.toDateString()}</Text> */}
-          <Text style={styles.title}>How was your day?</Text>
-          <Text style={styles.subtitle}>What goals are you satisfied with for today?</Text>
+          <Text style={globalStyles.title}>How was your day?</Text>
+          <Text style={globalStyles.subtitle}>What goals are you satisfied with for today?</Text>
         </View>
        }
 
@@ -149,12 +150,12 @@ const ChecklistScreen = () => {
 
       {/* button */}
 
-      <View style={[styles.center, styles.btnContainer]}>
+      <View style={[globalStyles.center, globalStyles.btnContainer]}>
         <TouchableOpacity
           onPress={handleNext}
-          style={styles.button}
+          style={globalStyles.button}
         >
-          <Text style={styles.btnText}>Next</Text>
+          <Text style={globalStyles.btnText}>Next</Text>
         </TouchableOpacity>
       </View>
 
@@ -165,42 +166,6 @@ const ChecklistScreen = () => {
 export default ChecklistScreen
 
 const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-    paddingTop: 50,
-    backgroundColor: '#F6E8F3',
-  },
-  center: {
-    alignItems: 'center',
-  },
-  title: {
-    color: '#63086B',
-    fontSize: 32,
-  },
-  subtitle: {
-    width: '70%',
-    marginTop: 32,
-    marginBottom: 50,
-    fontSize: 18,
-    textAlign: 'center', 
-  },
-  button: {
-    width: '60%',
-    backgroundColor: '#AA7DC6',
-    padding: 15,
-    borderRadius: 50,
-    alignItems: 'center',
-  },
-  btnText: {
-    fontSize: 20,
-    fontWeight: '500',
-  },
-  btnContainer: {
-    position: 'absolute', 
-    bottom: 30, 
-    width: '100%'
-  },
-
   // date picker
   picker: {
     flex: 1,
@@ -268,55 +233,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  // card
-  cardContainer: cardIsActive => ({ 
-    maxWidth: width/2 -10 ,
-    flex: 1, 
-    flexDirection: 'column', 
-    marginVertical: 5, 
-    marginHorizontal: 5, 
-    backgroundColor: cardIsActive ? '#A2B1F760' : '#d3d3d3', 
-    borderRadius: 20,
-    opacity: cardIsActive ? 1 : 0.5,
-    padding: 16 
-  }),
-  cardTitle: {
-    fontWeight: 'bold',
-    fontSize: 20,
-    marginBottom: 5
-  }
 })
-
-const Card = ({ category, goals, checkboxStates, onToggle }) => {
-  const cardIsActive = category == 'Health';
-
-  return (   
-    <View style={styles.cardContainer(cardIsActive)}>
-      <View>
-        <Text style={styles.cardTitle}>{category}</Text>
-      </View>
-      <View>
-        {goals.map((goal, index) => (
-          <View key={index} style={styles.goalContainer}>
-            {cardIsActive ?
-              <TouchableOpacity 
-                onPress={() => onToggle(index)} 
-                style={styles.containerCheckBox}
-              >
-                {/* Display checkbox based on state */}
-                {checkboxStates[index] ?
-                  <AntDesign name="checksquare" size={24} color="#8E2EA6" />
-                  :
-                  <AntDesign name="checksquareo" size={24} color="#8E2EA6" />
-                }
-              </TouchableOpacity>
-              : <View style={styles.checkBoxInactive} />
-            } 
-              <Text style={styles.goalTxt}>{goal}</Text>
-            </View>
-        ))}
-      </View>
-    </View>
-  );
-};

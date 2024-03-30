@@ -6,6 +6,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { reload } from 'firebase/auth';
 import { auth, datab } from '../../firebase';
 import { collection, doc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
+import globalStyles from '../../globalStyles';
 
 const GoalsScreen = () => {
   const navigation = useNavigation();
@@ -112,10 +113,10 @@ const GoalsScreen = () => {
   };
 
   return (
-    <View style={styles.body}>
-      <View style={styles.center}>
-        <Text style={styles.title}>Get Started</Text>
-        <Text style={styles.subtitle}>Now that you have selected the categories, let’s make a list of goals! </Text>
+    <View style={globalStyles.body}>
+      <View style={globalStyles.center}>
+        <Text style={globalStyles.title}>Get Started</Text>
+        <Text style={globalStyles.subtitle}>Now that you have selected the categories, let’s make a list of goals! </Text>
       </View>
 
       <View>
@@ -140,12 +141,12 @@ const GoalsScreen = () => {
         />
       </View>
 
-      <View style={[styles.center, styles.btnContainer]}>
+      <View style={[globalStyles.center, globalStyles.btnContainer]}>
         <TouchableOpacity
           onPress={handleDone}
-          style={styles.button}
+          style={globalStyles.button}
         >
-          <Text style={styles.btnText}>Done</Text>
+          <Text style={globalStyles.btnText}>Done</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -155,44 +156,6 @@ const GoalsScreen = () => {
 export default GoalsScreen;
 
 const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-    paddingTop: 50,
-    backgroundColor: '#F6E8F3',
-    position: 'relative'
-  },
-  center: {
-    alignItems: 'center',
-  },
-  title: {
-    color: '#63086B',
-    fontSize: 32,
-  },
-  subtitle: {
-    width: '80%',
-    marginTop: 32,
-    marginBottom: 50,
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  button: {
-    width: '60%',
-    backgroundColor: '#AA7DC6',
-    padding: 15,
-    borderRadius: 50,
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: 30
-  },
-  btnText: {
-    fontSize: 20,
-    fontWeight: '500',
-  },
-  btnContainer: {
-    position: 'absolute', 
-    bottom: 0, 
-    width: '100%'
-  },
   categoryTxt: {
     fontSize: 32,
     fontWeight: '700',
