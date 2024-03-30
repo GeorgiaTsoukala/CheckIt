@@ -6,7 +6,7 @@ import { auth, datab } from '../../firebase';
 
 const categoriesData = [
   { name: 'Productivity', isChecked: false },
-  { name: 'Health', isChecked: false },
+  { name: 'Health', isChecked: true },
   { name: 'Finance', isChecked: false },
   { name: 'Intellect', isChecked: false },
   { name: 'Creativity', isChecked: false },
@@ -56,7 +56,7 @@ const ChecklistScreen = () => {
           </View>
           <TouchableOpacity
             style={[styles.radioButton, category.isChecked ? { borderColor: '#8E2EA6' } : { borderColor: '#D0B8E6' }]}
-            onPress={() => handleCategoryToggle(index)}
+            onPress={() => {category.name !== 'Health' && handleCategoryToggle(index)}}
           >
             {category.isChecked && <View style={styles.radioButtonInner} />}
           </TouchableOpacity>
