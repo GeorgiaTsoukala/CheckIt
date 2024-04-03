@@ -41,6 +41,18 @@ const globalStyles = StyleSheet.create({
         bottom: 30, 
         width: '100%'
     },
+
+    // input
+    inputContainer: {
+        width: "80%",
+      },
+    input: {
+        backgroundColor: "white",
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        borderRadius: 10,
+        marginTop: 5,
+      },
 });
 
 export default globalStyles;

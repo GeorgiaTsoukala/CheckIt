@@ -3,9 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import { AntDesign } from '@expo/vector-icons';
-import { reload } from 'firebase/auth';
 import { auth, datab } from '../../firebase';
-import { collection, doc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
 import globalStyles from '../../globalStyles';
 
 const GoalsScreen = () => {
@@ -68,10 +67,6 @@ const GoalsScreen = () => {
 
         //save selected goals in the corresponding category document in categories collection
         await setDoc(doc(datab, "users", auth.currentUser.uid, "categories", title), {goals: selectedGoals});
-
-        //update the users database with a setUp status = true
-        let updatedFields = {setUp: true};
-        await updateDoc(doc(datab, "users", auth.currentUser.uid), updatedFields);
       }
 
       //remove existing screens from the stack, add BottomNavigation to it and navigate there
