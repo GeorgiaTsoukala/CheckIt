@@ -1,6 +1,6 @@
 import { StyleSheet, Text, Dimensions, TouchableOpacity, View, TouchableWithoutFeedback, FlatList } from 'react-native'
 import React, { useEffect, useState} from 'react'
-import { addDoc, collection, doc, getDocs, setDoc } from 'firebase/firestore';
+import { Timestamp, addDoc, collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
 import moment from 'moment';
 import globalStyles from '../globalStyles';
@@ -51,6 +51,50 @@ const ChecklistScreen = () => {
 
   }, []);
 
+
+
+  // handle calendar date selection
+  const [noData, setNoData] = useState(true);
+
+  const handleCalendarTap = async (selectedDate) => {
+    setValue(selectedDate);
+
+    // Fetch date's data
+    try {
+      const dailyDataRef = collection(datab, "users", auth.currentUser.uid, "dailydata");
+
+      // Set selectedDate to midnight (start of the day)
+      selectedDate.setHours(0, 0, 0, 0);
+
+      // Calculate the start and end timestamps for the selected date
+      const startTimestamp = Timestamp.fromDate(selectedDate);
+      const endTimestamp = Timestamp.fromMillis(selectedDate.getTime() + 86400000); // Add 24 hours to selectedDate
+
+      // Create a Firestore query to retrieve documents for the selected date
+      const q = query(
+        dailyDataRef,
+        where('timestamp', '>=', startTimestamp), // Greater than or equal to start of selectedDate
+        where('timestamp', '<', endTimestamp) // Less than end of selectedDate (start of next day)
+      );
+
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        console.log('Document data:', doc.data());
+      });
+
+      if (!querySnapshot.empty) {
+        setNoData(false);
+        console.log('no data')
+      } else {
+        setNoData(true);
+      }
+
+    } catch (error) {
+      console.error('Error fetching selected categories:', error);
+    }
+    
+  }
+
   // State to track the checkbox states
   const [checkboxStates, setCheckboxStates] = useState([]);
 
@@ -63,7 +107,7 @@ const ChecklistScreen = () => {
 
   // call the handleNext when you are done with the checklist
 
-  const handleNext = async () => {
+  const handleSave = async () => {
     // console.log(catGoals['Health'])
     // const now = new Date();
     // console.log(now.toString()); // Fri Mar 29 2024 20:17:06 GMT+0100
@@ -78,7 +122,9 @@ const ChecklistScreen = () => {
     try {
 
       //save selected daily goals in a dailydata document with auto generated doc id
-      await addDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {timestamp: new Date(), goals: dailyGoals});
+      
+      // TODO add current time to value 
+      await addDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {timestamp: value, goals: dailyGoals});
 
       // TODO show mood popup 
       // navigation.navigate("MoodPage")
@@ -101,7 +147,7 @@ const ChecklistScreen = () => {
                 return (
                   <TouchableWithoutFeedback
                     key={dateIndex}
-                    onPress={() => setValue(item.date)}>
+                    onPress={() => handleCalendarTap(item.date)}>
                     <View
                       style={[
                         styles.item,
@@ -129,11 +175,16 @@ const ChecklistScreen = () => {
       </View>
 
       {/* header */}
-      {value.toDateString() === (new Date()).toDateString() &&
+      {/* {value.toDateString() === (new Date()).toDateString() && */}
+      { noData ?
         <View style={globalStyles.center}>
-          {/* <Text style={styles.subtitle}>{value.toDateString()}</Text> */}
           <Text style={globalStyles.title}>How was your day?</Text>
           <Text style={globalStyles.subtitle}>What goals are you satisfied with for today?</Text>
+        </View>
+        :
+         <View style={globalStyles.center}>  
+          <Text style={globalStyles.title}>Your day</Text>
+          <Text style={globalStyles.subtitle}>The goals you accomplished on {value.toDateString()}</Text>
         </View>
        }
 
@@ -143,21 +194,23 @@ const ChecklistScreen = () => {
         data={Object.entries(catGoals)}
         horizontal= {false}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => <Card category={item[0]} goals={item[1]} checkboxStates={checkboxStates || []} onToggle={(index) => handleCheckboxToggle(index)}/>}
+        renderItem={({ item }) => <Card category={item[0]} goals={item[1]} checkboxStates={checkboxStates || []} onToggle={(index) => handleCheckboxToggle(index)} nodata={noData}/>}
 
         numColumns={2}
       />
 
       {/* button */}
 
-      <View style={[globalStyles.center, globalStyles.btnContainer]}>
-        <TouchableOpacity
-          onPress={handleNext}
-          style={globalStyles.button}
-        >
-          <Text style={globalStyles.btnText}>Next</Text>
-        </TouchableOpacity>
-      </View>
+      { noData && 
+        <View style={[globalStyles.center, globalStyles.btnContainer]}>
+          <TouchableOpacity
+            onPress={handleSave}
+            style={globalStyles.button}
+          >
+            <Text style={globalStyles.btnText}>Save</Text>
+          </TouchableOpacity>
+        </View>
+      }
 
     </View>
   )
