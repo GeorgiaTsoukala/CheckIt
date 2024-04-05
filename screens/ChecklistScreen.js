@@ -1,6 +1,6 @@
 import { StyleSheet, Text, Dimensions, TouchableOpacity, View, TouchableWithoutFeedback, FlatList, Modal, Image } from 'react-native'
 import React, { useEffect, useState} from 'react'
-import { Timestamp, addDoc, collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import { Timestamp, addDoc, collection, doc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
 import moment from 'moment';
 import globalStyles from '../globalStyles';
@@ -10,24 +10,11 @@ const { width } = Dimensions.get('window');
 
 const ChecklistScreen = () => {
   const [value, setValue] = useState(new Date()); //keeps today's date
-
-  const mydays = React.useMemo(() => {
-    const days = [];
-
-    for (let i = 6; i > -1; i--) {
-      const date = moment(new Date()).subtract(i, 'day');
-      days.push({
-        weekday: date.format('ddd'),
-        date: date.toDate(),
-      });
-    }
-
-    return days;
-  }, []);
-
-  // Get the selected categories from the database
-
-  const [catGoals, setCatGoals] = useState({});
+  const [modalOpen, setModalOpen] = useState(false); //open-close mood pop-up
+  const [selectedEmotion, setSelectedEmotion] = useState(null); 
+  const [checkboxStates, setCheckboxStates] = useState([]); //track the checkbox states
+  const [catGoals, setCatGoals] = useState({});  //get the selected categories from the database
+  const [savedData, setSavedData] = useState(false);
 
   useEffect(() => {
     const fetchCatGoals = async () => {
@@ -53,12 +40,21 @@ const ChecklistScreen = () => {
 
   }, []);
 
+  const mydays = React.useMemo(() => {
+    const days = [];
 
+    for (let i = 6; i > -1; i--) {
+      const date = moment(new Date()).subtract(i, 'day');
+      days.push({
+        weekday: date.format('ddd'),
+        date: date.toDate(),
+      });
+    }
+
+    return days;
+  }, []); 
 
   // handle calendar date selection
-  const [savedData, setSavedData] = useState(false);
-  // const [fetchedData, setFetchedData] = useState([])
-
   const handleCalendarTap = async (selectedDate) => {
     setValue(selectedDate);
     setCheckboxStates(Array(catGoals['Health'].length).fill(false));
@@ -118,18 +114,14 @@ const ChecklistScreen = () => {
     
   }
 
-  // State to track the checkbox states
-  const [checkboxStates, setCheckboxStates] = useState([]);
-
-  // Function to update checkbox states
+  // function to update checkbox states
   const handleCheckboxToggle = (index) => {
     const newCheckboxStates = [...checkboxStates];
     newCheckboxStates[index] = !newCheckboxStates[index]
     setCheckboxStates(newCheckboxStates);
   };
 
-  // call the handleNext when you are done with the checklist
-
+  // call handleSave when you are done with the checklist
   const handleSave = async () => {
     // console.log(catGoals['Health'])
     // const now = new Date();
@@ -143,39 +135,82 @@ const ChecklistScreen = () => {
     console.log(dailyGoals);
 
     try {
-
       //save selected daily goals in a dailydata document with auto generated doc id
       
       // TODO add current time to value 
       await addDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {timestamp: value, goals: dailyGoals});
 
-      // TODO show mood popup 
-      // navigation.navigate("MoodPage")
+      // open mood popup 
+      setModalOpen(true);
 
     } catch (error) {
       alert(error.message);
     }
   }
 
+  // call handleFinish when you are done with the emotion selection
+  const handleFinish = async () => {
+    try {
+      //update the daily goals with the emotion PROBLEM
+      //await updateDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {emotion: selectedEmotion});
+      
+      setModalOpen(false) 
+      setSelectedEmotion(null)
+
+    } catch (error) {
+      alert(error.message);
+    }       
+  }
+
   return (
     <View style={globalStyles.body}>
 
       {/* popup */}
-      <Modal transparent visible={true} animationType="slide">
+      <Modal transparent visible={modalOpen} animationType="slide">
         <View style={styles.modalBody}>
-
           <Text style={globalStyles.title}>Let's wrap up your day!</Text>
           <Text style={globalStyles.subtitle}>How did you feel overall today?</Text>
-
           <View style={styles.emotionList}>
-            <Image style={styles.emotionItem} source={require('../assets/emotions/very_sad.png')}></Image>
-            <Image style={styles.emotionItem} source={require('../assets/emotions/sad.png')}></Image>
-            <Image style={styles.emotionItem} source={require('../assets/emotions/neutral.png')}></Image>
-            <Image style={styles.emotionItem} source={require('../assets/emotions/happy.png')}></Image>
-            <Image style={styles.emotionItem} source={require('../assets/emotions/very_happy.png')}></Image>
+            <TouchableOpacity 
+              onPress={() => setSelectedEmotion('very_sad')}
+              style={selectedEmotion === 'very_sad' ? { opacity: 1 } : { opacity: 0.7 }}
+            >
+              <Image style={styles.emotionItem} source={require('../assets/emotions/very_sad.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => setSelectedEmotion('sad')}
+              style={selectedEmotion === 'sad' ? { opacity: 1 } : { opacity: 0.7 }}
+            >
+              <Image style={styles.emotionItem} source={require('../assets/emotions/sad.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => setSelectedEmotion('neutral')}
+              style={selectedEmotion === 'neutral' ? { opacity: 1 } : { opacity: 0.7 }}
+            >
+              <Image style={styles.emotionItem} source={require('../assets/emotions/neutral.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => setSelectedEmotion('happy')}
+              style={selectedEmotion === 'happy' ? { opacity: 1 } : { opacity: 0.7 }}
+            >
+              <Image style={styles.emotionItem} source={require('../assets/emotions/happy.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => setSelectedEmotion('very_happy')}
+              style={selectedEmotion === 'very_happy' ? { opacity: 1 } : { opacity: 0.7 }}
+            >
+              <Image style={styles.emotionItem} source={require('../assets/emotions/very_happy.png')} />
+            </TouchableOpacity>
           </View>
-
-
+            <View style={[globalStyles.center, globalStyles.btnContainer]}>
+              <TouchableOpacity
+                onPress={handleFinish}
+                style={[globalStyles.button, { opacity: selectedEmotion ? 1 : 0.5 }]}
+                disabled={selectedEmotion == null}
+              >
+                <Text style={globalStyles.btnText}>Finish</Text>
+              </TouchableOpacity>
+            </View>
         </View>
       </Modal>
 
@@ -230,8 +265,6 @@ const ChecklistScreen = () => {
         </View>
        }
 
-
-
       {/* category cards */}      
       <FlatList
         style = {{flex: 1, marginBottom: '25%'}}
@@ -244,7 +277,6 @@ const ChecklistScreen = () => {
       />
 
       {/* button */}
-
       { !savedData && 
         <View style={[globalStyles.center, globalStyles.btnContainer]}>
           <TouchableOpacity
@@ -275,7 +307,7 @@ const styles = StyleSheet.create({
   },
   emotionList: {
     flexDirection: 'row',
-    marginBottom: 30
+    marginBottom: 130 //////////////////////////////////// WHY???
   },
   emotionItem: {
     width: 46, 
