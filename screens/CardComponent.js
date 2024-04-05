@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
-const Card = ({ category, goals, checkboxStates, onToggle, noData }) => {
+const Card = ({ category, goals, checkboxStates, onToggle, savedData }) => {
   const cardIsActive = category == 'Health';
 
   return (   
@@ -17,7 +17,7 @@ const Card = ({ category, goals, checkboxStates, onToggle, noData }) => {
           <View key={index} style={styles.goalContainer}>
             {cardIsActive ?
               <TouchableOpacity 
-                disabled = {!noData} // not working yet!
+                disabled = {savedData} // not working yet!
                 onPress={() => onToggle(index)}
                 style={styles.containerCheckBox}
               >
