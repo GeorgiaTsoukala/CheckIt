@@ -42,6 +42,7 @@ const HomeScreen = () => {
 
   return (
     <View style={globalStyles.body}>
+      <View style={globalStyles.center}>
       <MaterialIcons
         name="logout"
         size={20}
@@ -53,15 +54,23 @@ const HomeScreen = () => {
         }}
         onPress={handleSignOut}
       />
-      <Text>Hello {name}</Text>
-    </View>
-  )
+      {/*<Text>Hello {name}</Text>
+    </View>*/}
+    <Text style={globalStyles.title}>Hello {name}</Text>
+        <Text style={globalStyles.subtitle}>You are doing great so far!</Text>
+      </View>
+      </View>
+  );
 }
 
-export default HomeScreen
+
+export default HomeScreen;
 
 const styles = StyleSheet.create({
   body: {
     paddingTop: 50,
   }
 })
+
+
+
