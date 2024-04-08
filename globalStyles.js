@@ -26,8 +26,8 @@ const globalStyles = StyleSheet.create({
 
     // button
     button: {
-        width: '60%',
-        backgroundColor: '#AA7DC6',
+        width: '50%',
+        backgroundColor: '#D7B4EC',
         padding: 15,
         borderRadius: 50,
         alignItems: 'center',

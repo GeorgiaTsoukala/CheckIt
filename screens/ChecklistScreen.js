@@ -1,6 +1,6 @@
-import { StyleSheet, Text, Dimensions, TouchableOpacity, View, TouchableWithoutFeedback, FlatList } from 'react-native'
+import { StyleSheet, Text, Dimensions, TouchableOpacity, View, TouchableWithoutFeedback, FlatList, Modal, Image } from 'react-native'
 import React, { useEffect, useState} from 'react'
-import { addDoc, collection, doc, getDocs, setDoc } from 'firebase/firestore';
+import { Timestamp, addDoc, collection, doc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
 import moment from 'moment';
 import globalStyles from '../globalStyles';
@@ -10,6 +10,35 @@ const { width } = Dimensions.get('window');
 
 const ChecklistScreen = () => {
   const [value, setValue] = useState(new Date()); //keeps today's date
+  const [modalOpen, setModalOpen] = useState(false); //open-close mood pop-up
+  const [selectedEmotion, setSelectedEmotion] = useState(null); 
+  const [checkboxStates, setCheckboxStates] = useState([]); //track the checkbox states
+  const [catGoals, setCatGoals] = useState({});  //get the selected categories from the database
+  const [savedData, setSavedData] = useState(false);
+
+  useEffect(() => {
+    const fetchCatGoals = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(datab, "users", auth.currentUser.uid, "categories"));
+        const categoryGoals = {};
+
+        querySnapshot.forEach(async (categoryDoc) => {
+          const goals = categoryDoc.data().goals;
+          categoryGoals[categoryDoc.id] = goals;
+        });
+
+        console.log('catGoals', categoryGoals)  
+
+        setCatGoals(categoryGoals);
+        setCheckboxStates(new Array(categoryGoals['Health'].length).fill(false))
+      } catch (error) {
+        console.error('Error fetching selected categories and goals:', error);
+      }
+    }
+
+    fetchCatGoals();  
+
+  }, []);
 
   const mydays = React.useMemo(() => {
     const days = [];
@@ -23,47 +52,77 @@ const ChecklistScreen = () => {
     }
 
     return days;
-  }, []);
+  }, []); 
 
-  // Get the selected categories from the database
+  // handle calendar date selection
+  const handleCalendarTap = async (selectedDate) => {
+    setValue(selectedDate);
+    setCheckboxStates(Array(catGoals['Health'].length).fill(false));
 
-  const [catGoals, setCatGoals] = useState({});
+    // Fetch date's data
+    try {
+      const dailyDataRef = collection(datab, "users", auth.currentUser.uid, "dailydata");
 
-  useEffect(() => {
-    const fetchCatGoals = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(datab, "users", auth.currentUser.uid, "categories"));
-        const categoryGoals = {};
+      // Set selectedDate to midnight (start of the day)
+      selectedDate.setHours(0, 0, 0, 0);
 
-        querySnapshot.forEach(async (categoryDoc) => {
-          const goals = categoryDoc.data().goals;
-          categoryGoals[categoryDoc.id] = goals;
+      // Calculate the start and end timestamps for the selected date
+      const startTimestamp = Timestamp.fromDate(selectedDate);
+      const endTimestamp = Timestamp.fromMillis(selectedDate.getTime() + 86400000); // Add 24 hours to selectedDate
+
+      // Create a Firestore query to retrieve documents for the selected date
+      const q = query(
+        dailyDataRef,
+        where('timestamp', '>=', startTimestamp), // Greater than or equal to start of selectedDate
+        where('timestamp', '<', endTimestamp) // Less than end of selectedDate (start of next day)
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        setSavedData(true);
+        console.log('yes data')
+        
+        querySnapshot.forEach((doc) => {
+          console.log('Document data:', doc.data());
+
+          let fetchedGoals = doc.data().goals;
+          console.log('fetched data: ', fetchedGoals)
+
+          // Initialize checkboxStates with all false values
+          let checkboxStatesSaved = Array(catGoals['Health'].length).fill(false);          
+
+          // Iterate over fetchedGoals and set corresponding checkboxStates to true
+          fetchedGoals.forEach((goal) => {
+            const index = catGoals['Health'].indexOf(goal);
+            if (index !== -1) {
+              checkboxStatesSaved[index] = true;
+            }
+          });
+
+          setCheckboxStates(checkboxStatesSaved);
+
+          // setFetchedData(doc.data().goals)
         });
-
-        setCatGoals(categoryGoals);
-        setCheckboxStates(new Array(categoryGoals['Health'].length).fill(false))
-      } catch (error) {
-        console.error('Error fetching selected categories and goals:', error);
+      } else {
+        setSavedData(false);
       }
+
+    } catch (error) {
+      console.error('Error fetching selected categories:', error);
     }
+    
+  }
 
-    fetchCatGoals();  
-
-  }, []);
-
-  // State to track the checkbox states
-  const [checkboxStates, setCheckboxStates] = useState([]);
-
-  // Function to update checkbox states
+  // function to update checkbox states
   const handleCheckboxToggle = (index) => {
     const newCheckboxStates = [...checkboxStates];
     newCheckboxStates[index] = !newCheckboxStates[index]
     setCheckboxStates(newCheckboxStates);
   };
 
-  // call the handleNext when you are done with the checklist
-
-  const handleNext = async () => {
+  // call handleSave when you are done with the checklist
+  const handleSave = async () => {
     // console.log(catGoals['Health'])
     // const now = new Date();
     // console.log(now.toString()); // Fri Mar 29 2024 20:17:06 GMT+0100
@@ -76,20 +135,84 @@ const ChecklistScreen = () => {
     console.log(dailyGoals);
 
     try {
-
       //save selected daily goals in a dailydata document with auto generated doc id
-      await addDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {timestamp: new Date(), goals: dailyGoals});
+      
+      // TODO add current time to value 
+      await addDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {timestamp: value, goals: dailyGoals});
 
-      // TODO show mood popup 
-      // navigation.navigate("MoodPage")
+      // open mood popup 
+      setModalOpen(true);
 
     } catch (error) {
       alert(error.message);
     }
   }
 
+  // call handleFinish when you are done with the emotion selection
+  const handleFinish = async () => {
+    try {
+      //update the daily goals with the emotion PROBLEM
+      //await updateDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {emotion: selectedEmotion});
+      
+      setModalOpen(false) 
+      setSelectedEmotion(null)
+
+    } catch (error) {
+      alert(error.message);
+    }       
+  }
+
   return (
     <View style={globalStyles.body}>
+
+      {/* popup */}
+      <Modal transparent visible={modalOpen} animationType="slide">
+        <View style={styles.modalBody}>
+          <Text style={globalStyles.title}>Let's wrap up your day!</Text>
+          <Text style={globalStyles.subtitle}>How did you feel overall today?</Text>
+          <View style={styles.emotionList}>
+            <TouchableOpacity 
+              onPress={() => setSelectedEmotion('very_sad')}
+              style={selectedEmotion === 'very_sad' ? { opacity: 1 } : { opacity: 0.7 }}
+            >
+              <Image style={styles.emotionItem} source={require('../assets/emotions/very_sad.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => setSelectedEmotion('sad')}
+              style={selectedEmotion === 'sad' ? { opacity: 1 } : { opacity: 0.7 }}
+            >
+              <Image style={styles.emotionItem} source={require('../assets/emotions/sad.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => setSelectedEmotion('neutral')}
+              style={selectedEmotion === 'neutral' ? { opacity: 1 } : { opacity: 0.7 }}
+            >
+              <Image style={styles.emotionItem} source={require('../assets/emotions/neutral.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => setSelectedEmotion('happy')}
+              style={selectedEmotion === 'happy' ? { opacity: 1 } : { opacity: 0.7 }}
+            >
+              <Image style={styles.emotionItem} source={require('../assets/emotions/happy.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => setSelectedEmotion('very_happy')}
+              style={selectedEmotion === 'very_happy' ? { opacity: 1 } : { opacity: 0.7 }}
+            >
+              <Image style={styles.emotionItem} source={require('../assets/emotions/very_happy.png')} />
+            </TouchableOpacity>
+          </View>
+            <View style={[globalStyles.center, globalStyles.btnContainer]}>
+              <TouchableOpacity
+                onPress={handleFinish}
+                style={[globalStyles.button, { opacity: selectedEmotion ? 1 : 0.5 }]}
+                disabled={selectedEmotion == null}
+              >
+                <Text style={globalStyles.btnText}>Finish</Text>
+              </TouchableOpacity>
+            </View>
+        </View>
+      </Modal>
 
       {/* calendar */}
       <View style={styles.picker}>
@@ -101,7 +224,7 @@ const ChecklistScreen = () => {
                 return (
                   <TouchableWithoutFeedback
                     key={dateIndex}
-                    onPress={() => setValue(item.date)}>
+                    onPress={() => handleCalendarTap(item.date)}>
                     <View
                       style={[
                         styles.item,
@@ -129,9 +252,14 @@ const ChecklistScreen = () => {
       </View>
 
       {/* header */}
-      {value.toDateString() === (new Date()).toDateString() &&
+      {/* {value.toDateString() === (new Date()).toDateString() && */}
+      { savedData ?
+        <View style={globalStyles.center}>  
+          <Text style={globalStyles.title}>Your day</Text>
+          <Text style={globalStyles.subtitle}>The goals you accomplished on {value.toDateString()}</Text>
+        </View>
+        :
         <View style={globalStyles.center}>
-          {/* <Text style={styles.subtitle}>{value.toDateString()}</Text> */}
           <Text style={globalStyles.title}>How was your day?</Text>
           <Text style={globalStyles.subtitle}>What goals are you satisfied with for today?</Text>
         </View>
@@ -143,21 +271,22 @@ const ChecklistScreen = () => {
         data={Object.entries(catGoals)}
         horizontal= {false}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => <Card category={item[0]} goals={item[1]} checkboxStates={checkboxStates || []} onToggle={(index) => handleCheckboxToggle(index)}/>}
+        renderItem={({ item }) => <Card category={item[0]} goals={item[1]} checkboxStates={checkboxStates || []} onToggle={(index) => handleCheckboxToggle(index)} savedData={savedData}/>}
 
         numColumns={2}
       />
 
       {/* button */}
-
-      <View style={[globalStyles.center, globalStyles.btnContainer]}>
-        <TouchableOpacity
-          onPress={handleNext}
-          style={globalStyles.button}
-        >
-          <Text style={globalStyles.btnText}>Next</Text>
-        </TouchableOpacity>
-      </View>
+      { !savedData && 
+        <View style={[globalStyles.center, globalStyles.btnContainer]}>
+          <TouchableOpacity
+            onPress={handleSave}
+            style={globalStyles.button}
+          >
+            <Text style={globalStyles.btnText}>Save</Text>
+          </TouchableOpacity>
+        </View>
+      }
 
     </View>
   )
@@ -166,6 +295,26 @@ const ChecklistScreen = () => {
 export default ChecklistScreen
 
 const styles = StyleSheet.create({
+  // popup
+  modalBody: {
+    backgroundColor: 'white',
+    alignItems: 'center',
+    marginHorizontal: 20,
+    paddingTop: 30,
+    borderRadius: 20,
+    elevation: 20,
+    marginTop: '50%'
+  },
+  emotionList: {
+    flexDirection: 'row',
+    marginBottom: 130 //////////////////////////////////// WHY???
+  },
+  emotionItem: {
+    width: 46, 
+    height: 46,
+    marginHorizontal: 5
+  },
+
   // date picker
   picker: {
     flex: 1,

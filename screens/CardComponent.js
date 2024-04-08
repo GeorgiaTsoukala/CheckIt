@@ -1,10 +1,10 @@
 import React from 'react';
 import { Dimensions, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
-const Card = ({ category, goals, checkboxStates, onToggle }) => {
+const Card = ({ category, goals, checkboxStates, onToggle, savedData }) => {
   const cardIsActive = category == 'Health';
 
   return (   
@@ -17,17 +17,18 @@ const Card = ({ category, goals, checkboxStates, onToggle }) => {
           <View key={index} style={styles.goalContainer}>
             {cardIsActive ?
               <TouchableOpacity 
-                onPress={() => onToggle(index)} 
+                disabled = {savedData} // not working yet!
+                onPress={() => onToggle(index)}
                 style={styles.containerCheckBox}
               >
                 {/* Display checkbox based on state */}
                 {checkboxStates[index] ?
-                  <AntDesign name="checksquare" size={24} color="#8E2EA6" />
+                  <MaterialIcons name="check-box" size={28} color="#8E2EA6" />
                   :
-                  <AntDesign name="checksquareo" size={24} color="#8E2EA6" />
+                  <MaterialIcons name="check-box-outline-blank" size={28} color="#8E2EA6" />
                 }
               </TouchableOpacity>
-              : <View style={styles.checkBoxInactive} />
+              : <MaterialIcons name="check-box-outline-blank" size={28} color="grey" />
             } 
               <Text style={styles.goalTxt}>{goal}</Text>
             </View>
@@ -80,15 +81,6 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         borderWidth: 3,
         borderColor: '#d0b8e6',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    checkBoxInactive: {
-        width: 24,
-        height: 24,
-        borderRadius: 5,
-        borderWidth: 3,
-        borderColor: '#a9a9a9',
         justifyContent: 'center',
         alignItems: 'center',
     },
