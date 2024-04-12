@@ -160,6 +160,8 @@ const ChecklistScreen = () => {
 
       console.log('done')
 
+      handleCalendarTap(value);
+
       // close popup
       setModalOpen(false) 
       // initialize emotion state
