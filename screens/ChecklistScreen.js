@@ -6,7 +6,6 @@ import moment from 'moment';
 import globalStyles from '../globalStyles';
 import Card from './CardComponent';
 import Toast from 'react-native-simple-toast';
-import { MaterialIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
