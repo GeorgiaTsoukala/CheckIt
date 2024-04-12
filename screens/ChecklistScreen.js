@@ -30,8 +30,6 @@ const ChecklistScreen = () => {
           categoryGoals[categoryDoc.id] = goals;
         });
 
-        console.log('catGoals', categoryGoals)  
-
         setCatGoals(categoryGoals);
         setCheckboxStates(new Array(categoryGoals['Health'].length).fill(false))
       } catch (error) {
@@ -59,7 +57,6 @@ const ChecklistScreen = () => {
 
   // handle calendar date selection
   const handleCalendarTap = async (selectedDate) => {
-    console.log(selectedDate)
     setValue(selectedDate);
 
     // save current timestamp
@@ -104,13 +101,10 @@ const ChecklistScreen = () => {
 
       if (!querySnapshot.empty) {
         setSavedData(true);
-        console.log('yes data')
         
         querySnapshot.forEach((doc) => {
-          console.log('Document data:', doc.data());
 
           let fetchedGoals = doc.data().goals;
-          console.log('fetched data: ', fetchedGoals)
 
           // Initialize checkboxStates with all false values
           let checkboxStatesSaved = Array(catGoals['Health'].length).fill(false);          
@@ -153,13 +147,10 @@ const ChecklistScreen = () => {
   // call handleFinish when you are done with the emotion selection
   const handleFinish = async () => {
     const dailyGoals = catGoals['Health'].filter((_, index) => checkboxStates[index]);
-    console.log(dailyGoals);
 
     try {
       //save selected daily goals and emotion in a dailydata document with auto generated doc id
       await addDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {timestamp: tsValue, goals: dailyGoals, emotion: selectedEmotion});
-
-      console.log('done')
 
       handleCalendarTap(value);
 
