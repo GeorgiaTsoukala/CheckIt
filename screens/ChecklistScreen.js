@@ -6,6 +6,8 @@ import moment from 'moment';
 import globalStyles from '../globalStyles';
 import Card from './CardComponent';
 import Toast from 'react-native-simple-toast';
+import { MaterialIcons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -164,7 +166,7 @@ const ChecklistScreen = () => {
 
       // close popup
       setModalOpen(false) 
-      // initialize emotion state
+      // initialize emotion state to null
       setSelectedEmotion(null)
 
       Toast.show('Saved! Good job!')
@@ -181,9 +183,15 @@ const ChecklistScreen = () => {
   return (
     <View style={globalStyles.body}>
 
-      {/* popup */}
-      <Modal transparent visible={modalOpen} animationType="slide">
+      {/* popup */}      
+      <Modal transparent visible={modalOpen} animationType="slide">        
         <View style={styles.modalBody}>
+          <AntDesign 
+            name="closecircleo"
+            size={24}
+            style={{ alignSelf: "center", marginBottom: 10}}
+            onPress={() => (setModalOpen(false))}
+          />
           <Text style={globalStyles.title}>Let's wrap up your day!</Text>
           <Text style={globalStyles.subtitle}>How did you feel overall today?</Text>
           <View style={styles.emotionList}>
