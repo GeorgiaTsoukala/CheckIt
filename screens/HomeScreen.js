@@ -72,7 +72,7 @@ const HomeScreen = () => {
           horizontal={true} 
           contentContainerStyle={styles.buttonContainer}
           snapToAlignment={'start'} // Align the left edge of the content to the left side of the ScrollView
-          snapToInterval={'27%'}
+          // snapToInterval={'27%'}
         >
           <TouchableOpacity 
             style={[styles.button, activeButton === 'Health' ? styles.activeButton : null]} 
