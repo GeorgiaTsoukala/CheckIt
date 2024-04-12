@@ -5,11 +5,13 @@ import { auth, datab } from '../firebase';
 import moment from 'moment';
 import globalStyles from '../globalStyles';
 import Card from './CardComponent';
+import Toast from 'react-native-simple-toast';
 
 const { width } = Dimensions.get('window');
 
 const ChecklistScreen = () => {
   const [value, setValue] = useState(new Date()); //keeps today's date
+  const [tsValue, setTsValue] = useState(new Date());
   const [modalOpen, setModalOpen] = useState(false); //open-close mood pop-up
   const [selectedEmotion, setSelectedEmotion] = useState(null); 
   const [checkboxStates, setCheckboxStates] = useState([]); //track the checkbox states
@@ -56,7 +58,27 @@ const ChecklistScreen = () => {
 
   // handle calendar date selection
   const handleCalendarTap = async (selectedDate) => {
+    console.log(selectedDate)
     setValue(selectedDate);
+
+    // save current timestamp
+    const currentTime = moment();
+
+    // save combined calendar date with current time
+    const combinedDateTime = moment(selectedDate).set({
+      hour: currentTime.hour(),
+      minute: currentTime.minute(),
+      second: currentTime.second()
+    });
+    setTsValue(combinedDateTime.toDate());
+
+    // // Get current time // alternative to the above
+    // const currentTime = new Date();
+
+    // // Set up timestamp with calendar's date and current time
+    // const tms = moment(`${moment(selectedDate).format('YYYY-MM-DD')} ${moment(currentTime).format('HH:mm:ss')}`).toDate()
+    // setTsValue(tms)
+
     setCheckboxStates(Array(catGoals['Health'].length).fill(false));
 
     // Fetch date's data
@@ -123,43 +145,35 @@ const ChecklistScreen = () => {
 
   // call handleSave when you are done with the checklist
   const handleSave = async () => {
-    // console.log(catGoals['Health'])
-    // const now = new Date();
-    // console.log(now.toString()); // Fri Mar 29 2024 20:17:06 GMT+0100
-    // console.log(now.toDateString()); // Fri Mar 29 2024
-    // console.log(now.toLocaleDateString()); // 3/29/2024
-
-    // const checkboxStates = [true, true, true, false, false];
-    // const catGoalsHealth = ["Meditate", "Exercise", "Drink enough water", "Get enough sleep", "Eat healthy"];
-    const dailyGoals = catGoals['Health'].filter((_, index) => checkboxStates[index]);
-    console.log(dailyGoals);
-
-    try {
-      //save selected daily goals in a dailydata document with auto generated doc id
-      
-      // TODO add current time to value 
-      await addDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {timestamp: value, goals: dailyGoals});
-
       // open mood popup 
       setModalOpen(true);
-
-    } catch (error) {
-      alert(error.message);
-    }
   }
 
   // call handleFinish when you are done with the emotion selection
   const handleFinish = async () => {
+    const dailyGoals = catGoals['Health'].filter((_, index) => checkboxStates[index]);
+    console.log(dailyGoals);
+
     try {
-      //update the daily goals with the emotion PROBLEM
-      //await updateDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {emotion: selectedEmotion});
-      
+      //save selected daily goals and emotion in a dailydata document with auto generated doc id
+      await addDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {timestamp: tsValue, goals: dailyGoals, emotion: selectedEmotion});
+
+      console.log('done')
+
+      // close popup
       setModalOpen(false) 
+      // initialize emotion state
       setSelectedEmotion(null)
+
+      Toast.show('Saved! Good job!')
+
 
     } catch (error) {
       alert(error.message);
-    }       
+
+      Toast.show('Something went wrong...')
+
+    }      
   }
 
   return (
