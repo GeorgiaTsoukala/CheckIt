@@ -10,6 +10,7 @@ const { width } = Dimensions.get('window');
 
 const ChecklistScreen = () => {
   const [value, setValue] = useState(new Date()); //keeps today's date
+  const [tsValue, setTsValue] = useState(new Date());
   const [modalOpen, setModalOpen] = useState(false); //open-close mood pop-up
   const [selectedEmotion, setSelectedEmotion] = useState(null); 
   const [checkboxStates, setCheckboxStates] = useState([]); //track the checkbox states
@@ -56,7 +57,27 @@ const ChecklistScreen = () => {
 
   // handle calendar date selection
   const handleCalendarTap = async (selectedDate) => {
+    console.log(selectedDate)
     setValue(selectedDate);
+
+    // save current timestamp
+    const currentTime = moment();
+
+    // save combined calendar date with current time
+    const combinedDateTime = moment(selectedDate).set({
+      hour: currentTime.hour(),
+      minute: currentTime.minute(),
+      second: currentTime.second()
+    });
+    setTsValue(combinedDateTime.toDate());
+
+    // // Get current time // alternative to the above
+    // const currentTime = new Date();
+
+    // // Set up timestamp with calendar's date and current time
+    // const tms = moment(`${moment(selectedDate).format('YYYY-MM-DD')} ${moment(currentTime).format('HH:mm:ss')}`).toDate()
+    // setTsValue(tms)
+
     setCheckboxStates(Array(catGoals['Health'].length).fill(false));
 
     // Fetch date's data
@@ -136,9 +157,7 @@ const ChecklistScreen = () => {
 
     try {
       //save selected daily goals in a dailydata document with auto generated doc id
-      
-      // TODO add current time to value 
-      await addDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {timestamp: value, goals: dailyGoals});
+      await addDoc(collection(datab, "users", auth.currentUser.uid, "dailydata"), {timestamp: tsValue, goals: dailyGoals});
 
       // open mood popup 
       setModalOpen(true);
