@@ -1,42 +1,172 @@
-import { Dimensions, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { BarChart, LineChart } from 'react-native-chart-kit'
+import { ActivityIndicator, Dimensions, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import globalStyles from '../globalStyles'
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import { auth, datab } from '../firebase';
 import { VictoryAxis, VictoryBar, VictoryChart, VictoryTheme } from "victory-native";
 
-const VisualizationsScreen = () => {
-  const data = [
-    { quarter: 1, earnings: 13000 },
-    { quarter: 2, earnings: 16500 },
-    { quarter: 3, earnings: 14250 },
-    { quarter: 4, earnings: 29000 }
-  ];
 
+const VisualizationsScreen = () => {
+  const [goals, setGoals] = useState([])
+  const [data, setData] = useState([])
+
+  const [barData, setBarData] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+
+
+  useEffect(() => {
+
+    const fetchAllGoalsAndData = async () => {
+      try {
+
+        // fetch goals
+        const querySnap = await getDoc(doc(datab, "users", auth.currentUser.uid, "categories", "Health"));
+
+        const allGoals = querySnap.data().goals;
+
+        setGoals(allGoals);
+
+        // fetch data
+        const querySnapshot = await getDocs(collection(datab, "users", auth.currentUser.uid, "dailydata"));
+
+        const allData = []
+
+        querySnapshot.forEach(async (dataDoc) => {
+          const mydata = dataDoc.data();
+          allData.push(mydata)
+        });
+
+        setData(allData);
+        
+      } catch (error) {
+        console.error('Error fetching the selected goals and data:', error);
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAllGoalsAndData();
+
+  }, []);
+
+  useEffect(() => {
+    const getDataPerWeek = async () => {
+      const goalsCount = {
+        "Monday": 0,
+        "Tuesday": 0,
+        "Wednesday": 0,
+        "Thursday": 0,
+        "Friday": 0,
+        "Saturday": 0,
+        "Sunday": 0
+      }
+
+      const entriesCount = {
+        "Monday": 0,
+        "Tuesday": 0,
+        "Wednesday": 0,
+        "Thursday": 0,
+        "Friday": 0,
+        "Saturday": 0,
+        "Sunday": 0
+      }
+
+      const getDayOfWeek = (tmsp) => {
+        return tmsp.toLocaleDateString('en-US', { weekday: 'long' });
+      };
+
+      data.forEach(entry => {
+        if (entry.goals) {
+          const tmsp = new Date(entry.timestamp.seconds * 1000 + entry.timestamp.nanoseconds / 1000000);
+          const dayOfWeek = getDayOfWeek(tmsp);
+          console.log('day', dayOfWeek)
+          goalsCount[dayOfWeek] += entry.goals.length;
+          entriesCount[dayOfWeek] += 1;
+        }
+      });
+
+      const averageGoals = {};
+      const complPercent = {};
+      for (const day in goalsCount) {
+        console.log(goalsCount[day], entriesCount[day])
+        console.log('BOO', day, averageGoals[day], goals)
+        entriesCount[day] != 0 ? averageGoals[day] = goalsCount[day] / entriesCount[day] : averageGoals[day] = -1;
+        complPercent[day] = averageGoals[day]/goals.length * 100 
+      }
+
+      const barplotData = []
+      for (const day in complPercent) {
+        barplotData.push({ day: day, value: complPercent[day]})
+      }
+      console.log('here', barplotData)
+      setBarData(barplotData)
+
+    }
+
+    if(!loading) {
+      getDataPerWeek();
+    }
+
+  }, [data, loading])
 
   return (
-    <View style={styles.container}>
-      <VictoryChart
-        // domainPadding will add space to each side of VictoryBar to
-        // prevent it from overlapping the axis
-        domainPadding={20}
-      >
-        <VictoryAxis
-          // tickValues specifies both the number of ticks and where
-          // they are placed on the axis
-          tickValues={[1, 2, 3, 4]}
-          tickFormat={["Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"]}
-        />
-        <VictoryAxis
-          dependentAxis
-          // tickFormat specifies how ticks should be displayed
-          tickFormat={(x) => (`$${x / 1000}k`)}
-        />
-        <VictoryBar
-          data={data}
-          x="quarter"
-          y="earnings"
-        />
-      </VictoryChart>
+    <View style = {globalStyles.body}>
+      <View style = {globalStyles.center}>
+        <Text style = {globalStyles.title}>My Progress</Text>
+      </View>
+
+      {/* The following is for debugging purposes */}
+      {/* <View>
+        {Object.entries(complPercentPerDay).map(([day, average]) => (
+          <Text key={day}>{day}: {average.toFixed(2)} %</Text>
+        ))}
+      </View> */}
+
+      {loading ?
+        <View style={{flex: 1, justifyContent:'center'}}>
+          <ActivityIndicator size="large" color="#63086B" />
+        </View>
+      : (
+        <View style={styles.container}>
+          <VictoryChart
+            // domainPadding will add space to each side of VictoryBar to
+            // prevent it from overlapping the axis
+            domainPadding={30}
+            theme={VictoryTheme.material}
+          >
+            <VictoryAxis
+              // tickValues specifies both the number of ticks and where
+              // they are placed on the axis
+              tickValues={[1, 2, 3, 4, 5, 6, 7]}
+              tickFormat={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+              style={{
+                tickLabels: { fontSize: 12, color: '#86929e' },
+                // axis: { stroke: "transparent" }, // Hide the axis line
+              }}
+            />
+            <VictoryAxis
+              dependentAxis
+              // tickFormat specifies how ticks should be displayed
+              tickFormat={(x) => (`${x}%`)}
+              style={{
+                tickLabels: { fontSize: 12, color: '#86929e' },
+                // axis: { stroke: "transparent" }, // Hide the axis line
+              }}
+            />
+            <VictoryBar
+              data={barData}
+              x="day"
+              y="value"
+              barWidth={16}
+              cornerRadius='8'
+              style={{
+                data: { fill: '#FF8743' },
+              }}
+            />
+          </VictoryChart>
+        </View>
+      )} 
     </View>
   )
 }
@@ -44,14 +174,10 @@ const VisualizationsScreen = () => {
 export default VisualizationsScreen
 
 const styles = StyleSheet.create({
-  body: {
-    paddingTop: 50,
-  },
-  container: {
+   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5fcff"
   }
 })
 
