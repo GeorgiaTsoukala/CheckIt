@@ -1,20 +1,20 @@
-import { ActivityIndicator, Dimensions, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import globalStyles from '../globalStyles'
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
-import { VictoryAxis, VictoryBar, VictoryChart, VictoryTheme } from "victory-native";
+import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryTheme } from "victory-native";
+import { RadioButton } from 'react-native-paper';
 
 
 const VisualizationsScreen = () => {
+  const [viewMode, setViewMode] = useState('day') // Initially set to 'day'
   const [goals, setGoals] = useState([])
   const [data, setData] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [barData, setBarData] = useState([]) //Data for bar plot
 
-  const [barData, setBarData] = useState([]);
-
-  const [loading, setLoading] = useState(true);
-
-
+  // Call fetchAllGoalsAndData when component mounts
   useEffect(() => {
 
     const fetchAllGoalsAndData = async () => {
@@ -27,7 +27,7 @@ const VisualizationsScreen = () => {
 
         setGoals(allGoals);
 
-        // fetch data
+        // fetch dailydata
         const querySnapshot = await getDocs(collection(datab, "users", auth.currentUser.uid, "dailydata"));
 
         const allData = []
@@ -110,10 +110,24 @@ const VisualizationsScreen = () => {
 
   }, [data, loading])
 
+  // Function to update bar data based on view mode
+  const updateBarData = () => {
+    if (viewMode === 'day') {
+      setBarData(dayBarData);
+    } else {
+      setBarData(monthBarData);
+    }
+  };
+
+// Call updateBarData whenever viewMode changes
+  useEffect(() => {
+    updateBarData();
+  }, [viewMode]);
+
   return (
     <View style = {globalStyles.body}>
       <View style = {globalStyles.center}>
-        <Text style = {globalStyles.title}>My Progress</Text>
+        <Text style = {globalStyles.title}>Your Progress</Text>
       </View>
 
       {/* The following is for debugging purposes */}
@@ -122,6 +136,16 @@ const VisualizationsScreen = () => {
           <Text key={day}>{day}: {average.toFixed(2)} %</Text>
         ))}
       </View> */}
+
+      <View style={styles.toggleContainer}>
+        <Text style={{ fontSize: 18}}>View most productive</Text>
+        <RadioButton.Group onValueChange={value => setViewMode(value)} value={viewMode}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <RadioButton.Item label="Days" value="day" color="#63086B" />
+            <RadioButton.Item label="Months" value="month" color="#63086B" />
+          </View>
+        </RadioButton.Group>
+      </View>
 
       {loading ?
         <View style={{flex: 1, justifyContent:'center'}}>
@@ -135,11 +159,18 @@ const VisualizationsScreen = () => {
             domainPadding={30}
             theme={VictoryTheme.material}
           >
+            <VictoryLabel
+              text={viewMode === 'day' ? "Most Productive Days" : "Most Productive Months"}
+              x={205} // Adjust this value to center the title horizontally
+              y={30} // Adjust this value to position the title vertically
+              textAnchor="middle"
+              style={{ fontSize: 18, fill: "#333" }}
+          />
             <VictoryAxis
               // tickValues specifies both the number of ticks and where
               // they are placed on the axis
-              tickValues={[1, 2, 3, 4, 5, 6, 7]}
-              tickFormat={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+              tickValues={viewMode === 'day' ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} // Adjust based on view mode
+              tickFormat={viewMode === 'day' ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]}
               style={{
                 tickLabels: { fontSize: 12, color: '#86929e' },
                 // axis: { stroke: "transparent" }, // Hide the axis line
@@ -178,6 +209,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  }
+  },
+  toggleContainer: {
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    // alignSelf: 'center', // Add this line
+    marginBottom: 20,
+  },
 })
 
