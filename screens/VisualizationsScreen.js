@@ -8,7 +8,7 @@ import { RadioButton } from 'react-native-paper';
 
 
 const VisualizationsScreen = () => {
-  const [viewMode, setViewMode] = useState('day') // Initially set to 'day'
+  const [viewMode, setViewMode] = useState('days') // Initially set to 'days'
   const [goals, setGoals] = useState([])
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -112,10 +112,10 @@ const VisualizationsScreen = () => {
 
   // Function to update bar data based on view mode
   const updateBarData = () => {
-    if (viewMode === 'day') {
-      setBarData(dayBarData);
+    if (viewMode === 'days') {
+      //setBarData(dayBarData);
     } else {
-      setBarData(monthBarData);
+      //setBarData(monthBarData);
     }
   };
 
@@ -138,11 +138,11 @@ const VisualizationsScreen = () => {
       </View> */}
 
       <View style={styles.toggleContainer}>
-        <Text style={{ fontSize: 18}}>View most productive</Text>
+        <Text style={{ fontSize: 18}}>Most productive</Text>
         <RadioButton.Group onValueChange={value => setViewMode(value)} value={viewMode}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <RadioButton.Item label="Days" value="day" color="#63086B" />
-            <RadioButton.Item label="Months" value="month" color="#63086B" />
+            <RadioButton.Item label="Days" value="days" color="#63086B" />
+            <RadioButton.Item label="Months" value="months" color="#63086B" />
           </View>
         </RadioButton.Group>
       </View>
@@ -160,7 +160,7 @@ const VisualizationsScreen = () => {
             theme={VictoryTheme.material}
           >
             <VictoryLabel
-              text={viewMode === 'day' ? "Most Productive Days" : "Most Productive Months"}
+              text={viewMode === 'days' ? "Daily Accomplished Goals Percentage" : "Monthly Accomplished Goals Percentage"}
               x={205} // Adjust this value to center the title horizontally
               y={30} // Adjust this value to position the title vertically
               textAnchor="middle"
@@ -169,8 +169,8 @@ const VisualizationsScreen = () => {
             <VictoryAxis
               // tickValues specifies both the number of ticks and where
               // they are placed on the axis
-              tickValues={viewMode === 'day' ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} // Adjust based on view mode
-              tickFormat={viewMode === 'day' ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]}
+              tickValues={viewMode === 'days' ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} 
+              tickFormat={viewMode === 'days' ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]}
               style={{
                 tickLabels: { fontSize: 12, color: '#86929e' },
                 // axis: { stroke: "transparent" }, // Hide the axis line
