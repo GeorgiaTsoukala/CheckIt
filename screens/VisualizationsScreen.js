@@ -3,16 +3,18 @@ import React, { useEffect, useState } from 'react'
 import globalStyles from '../globalStyles'
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
-import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryTheme } from "victory-native";
+import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryScatter, VictoryTheme } from "victory-native";
 import { RadioButton } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
 const VisualizationsScreen = () => {
-  const [viewMode, setViewMode] = useState('days') // Initially set to 'days'
+  const [viewModeBar, setViewModeBar] = useState('days') // For Bar plot, initially set to 'days'
+  const [viewModeScatter, setViewModeScatter] = useState('days') // For Scatter plot, initially set to 'days'
   const [goals, setGoals] = useState([])
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
+  const [scatterData, setScatterData] = useState([]) //Data for scatter plot
   const [barData, setBarData] = useState([])
   const [barDailyData, setBarDailyData] = useState([]) //Daily Data for bar plot
   const [barMonthlyData, setBarMonthlyData] = useState([]) //Monthly Data for bar plot
@@ -94,7 +96,7 @@ const VisualizationsScreen = () => {
       const averageGoals = {};
       const complPercent = {};
       for (const day in goalsCount) {
-        entriesCount[day] != 0 ? averageGoals[day] = goalsCount[day] / entriesCount[day] : averageGoals[day] = -1;
+        entriesCount[day] != 0 ? averageGoals[day] = goalsCount[day] / entriesCount[day] : averageGoals[day] = 0; 
         complPercent[day] = averageGoals[day]/goals.length * 100 
       }
 
@@ -102,7 +104,7 @@ const VisualizationsScreen = () => {
       for (const day in complPercent) {
         barplotData.push({ tag: day, value: complPercent[day]})
       }
-      // console.log('here', barplotData)
+      //console.log('here', barplotData)
       setBarDailyData(barplotData)
       setBarData(barplotData)
 
@@ -160,7 +162,7 @@ const VisualizationsScreen = () => {
       const averageGoals = {};
       const complPercent = {};
       for (const month in goalsCount) {
-        entriesCount[month] != 0 ? averageGoals[month] = goalsCount[month] / entriesCount[month] : averageGoals[month] = 0; //maybe -1
+        entriesCount[month] != 0 ? averageGoals[month] = goalsCount[month] / entriesCount[month] : averageGoals[month] = 0;
         complPercent[month] = averageGoals[month]/goals.length * 100 
       }
 
@@ -168,15 +170,49 @@ const VisualizationsScreen = () => {
       for (const month in complPercent) {
         barplotData.push({ tag: month, value: complPercent[month]})
       }
-      // console.log('here month', barplotData)
+      //console.log('here month', barplotData)
       setBarMonthlyData(barplotData)
+    }
 
+    const getDataForScatter = async () => {
+      const pairCount = {}
+     
+      data.forEach(entry => {
+        if (entry.goals && entry.emotion) {
+          const complPercent = Math.round(entry.goals.length/goals.length * 10) * 10;
+
+          const searchKey = `${entry.emotion}-${complPercent}`
+          if(searchKey in pairCount) {
+            pairCount[searchKey]++
+          } else {
+            pairCount[searchKey] = 1
+          }
+        }
+      });
+
+      // map emotions to get them on y-axis
+      const emotionMap = {
+        "very_sad" : 1,
+        "sad" : 2,
+        "neutral" : 3,
+        "happy" : 4,
+        "very_happy" : 5
+      }
+
+      const scatterplotData = []
+      for (const key in pairCount) {
+        const [key1, key2] = key.split('-')
+        scatterplotData.push({ emotion: emotionMap[key1], value: parseInt(key2), amount: pairCount[key]})
+      }
+      console.log('here Scatter', scatterplotData)
+      setScatterData(scatterplotData)
     }
 
     const fetchData = async () => {
       try {
         await getDataPerWeekDay();
         await getDataPerMonth();
+        await getDataForScatter();
         console.log('!!!!data', barDailyData, barMonthlyData)
         
       } catch (error) {
@@ -190,17 +226,17 @@ const VisualizationsScreen = () => {
 
   // Function to update bar data based on view mode
   const updateBarData = () => {
-    if (viewMode === 'days') {
+    if (viewModeBar === 'days') {
       setBarData(barDailyData);
     } else {
       setBarData(barMonthlyData);
     }
   };
 
-// Call updateBarData whenever viewMode changes
+// Call updateBarData whenever viewModeBar changes
   useEffect(() => {
     updateBarData();
-  }, [viewMode]);
+  }, [viewModeBar]);
 
   return (
     <View style = {globalStyles.body}>
@@ -209,14 +245,13 @@ const VisualizationsScreen = () => {
       </View>
 
       {/* diagrams */}
-      {/* <View> */}
       <ScrollView>
 
         {/* first diagram */}
         <View>
           <View style={styles.toggleContainer}>
             <Text style={{ fontSize: 18, marginRight: 25}}>Most productive</Text>
-            <RadioButton.Group onValueChange={value => setViewMode(value)} value={viewMode}>
+            <RadioButton.Group onValueChange={value => setViewModeBar(value)} value={viewModeBar}>
               <View style={{ flexDirection: 'row'}}>
 
                 <Text style={{fontSize: 18, alignSelf: 'center'}}>Days</Text>
@@ -241,7 +276,7 @@ const VisualizationsScreen = () => {
                 theme={VictoryTheme.material}
               >
                 <VictoryLabel
-                  text={viewMode === 'days' ? "Daily Accomplished Goals Percentage" : "Monthly Accomplished Goals Percentage"}
+                  text={viewModeBar === 'days' ? "Daily Accomplished Goals Percentage" : "Monthly Accomplished Goals Percentage"}
                   x={Dimensions.get('window').width / 2} // Adjust this value to center the title horizontally
                   y={30} // Adjust this value to position the title vertically
                   textAnchor="middle"
@@ -250,8 +285,8 @@ const VisualizationsScreen = () => {
                 <VictoryAxis
                   // tickValues specifies both the number of ticks and where
                   // they are placed on the axis
-                  tickValues={viewMode === 'days' ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} 
-                  tickFormat={viewMode === 'days' ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]}
+                  tickValues={viewModeBar === 'days' ? [7, 6, 5, 4, 3, 2, 1] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} 
+                  tickFormat={viewModeBar === 'days' ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]}
                   style={{
                     tickLabels: { fontSize: 12, color: '#86929e' },
                     // axis: { stroke: "transparent" }, // Hide the axis line
@@ -273,7 +308,7 @@ const VisualizationsScreen = () => {
                   barWidth={16}
                   // cornerRadius='8' !!!DANGER!!!
                   style={{
-                    data: { fill: '#FF8743' },
+                    data: { fill: '#A2B1F7' },
                   }}
                 />
               </VictoryChart>
@@ -283,9 +318,9 @@ const VisualizationsScreen = () => {
 
         {/* second diagram */}
         <View>
-          <View style={styles.toggleContainer}>
-            <Text style={{ fontSize: 18, marginRight: 25}}>Most productive</Text>
-            <RadioButton.Group onValueChange={value => setViewMode(value)} value={viewMode}>
+          {/* <View style={styles.toggleContainer}>
+            <Text style={{ fontSize: 18, marginRight: 25}}>Emotions scatter</Text>
+            <RadioButton.Group onValueChange={value => setViewModeScatter(value)} value={viewModeScatter}>
               <View style={{ flexDirection: 'row'}}>
 
                 <Text style={{fontSize: 18, alignSelf: 'center'}}>Days</Text>
@@ -296,7 +331,7 @@ const VisualizationsScreen = () => {
 
               </View>
             </RadioButton.Group>
-          </View>
+          </View> */}
           {loading ?
             <View style={{flex: 1, justifyContent:'center'}}>
               <ActivityIndicator size="large" color="#63086B" />
@@ -310,7 +345,7 @@ const VisualizationsScreen = () => {
                 theme={VictoryTheme.material}
               >
                 <VictoryLabel
-                  text={viewMode === 'days' ? "Daily Accomplished Goals Percentage" : "Monthly Accomplished Goals Percentage"}
+                  text={viewModeScatter === 'days' ? "Relation of Emotions and Accomplished Goals" : "Monthly"}
                   x={Dimensions.get('window').width / 2} // Adjust this value to center the title horizontally
                   y={30} // Adjust this value to position the title vertically
                   textAnchor="middle"
@@ -319,8 +354,8 @@ const VisualizationsScreen = () => {
                 <VictoryAxis
                   // tickValues specifies both the number of ticks and where
                   // they are placed on the axis
-                  tickValues={viewMode === 'days' ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} 
-                  tickFormat={viewMode === 'days' ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]}
+                  tickValues={[1, 2, 3, 4, 5]} 
+                  tickFormat={["very sad", "sad", "neutral", "happy", "very happy"]}
                   style={{
                     tickLabels: { fontSize: 12, color: '#86929e' },
                     // axis: { stroke: "transparent" }, // Hide the axis line
@@ -335,15 +370,16 @@ const VisualizationsScreen = () => {
                     // axis: { stroke: "transparent" }, // Hide the axis line
                   }}
                 />
-                <VictoryBar
-                  data={barData}
-                  x="tag"
+                <VictoryScatter
+                  style={{ data: { fill: "#c43a81" }, labels: { fill: "white", fontSize: 10}}}
+                  bubbleProperty="amount"
+                  maxBubbleSize={15}
+                  minBubbleSize={5}
+                  data={scatterData}
+                  labels={({ datum }) => datum.amount}
+                  labelComponent={<VictoryLabel dy={5}/>}
+                  x="emotion"
                   y="value"
-                  barWidth={16}
-                  // cornerRadius='8' !!!DANGER!!!
-                  style={{
-                    data: { fill: '#FF8743' },
-                  }}
                 />
               </VictoryChart>
             </View>
