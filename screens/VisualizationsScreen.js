@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import globalStyles from '../globalStyles'
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
-import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryScatter, VictoryTheme } from "victory-native";
+import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryPie, VictoryScatter, VictoryTheme } from "victory-native";
 import { RadioButton } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
@@ -14,6 +14,7 @@ const VisualizationsScreen = () => {
   const [goals, setGoals] = useState([])
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
+  const [pieData, setPieData] = useState([]) //Data for pie plot
   const [scatterData, setScatterData] = useState([]) //Data for scatter plot
   const [barData, setBarData] = useState([])
   const [barDailyData, setBarDailyData] = useState([]) //Daily Data for bar plot
@@ -204,8 +205,30 @@ const VisualizationsScreen = () => {
         const [key1, key2] = key.split('-')
         scatterplotData.push({ emotion: emotionMap[key1], value: parseInt(key2), amount: pairCount[key]})
       }
-      console.log('here Scatter', scatterplotData)
+      // console.log('here Scatter', scatterplotData)
       setScatterData(scatterplotData)
+    }
+
+    const getDataForPie = async () => {
+      const dataPie = {}
+      goals.map((item) => {
+        dataPie[item] = 0
+      })
+      
+      data.forEach(entry => {
+        if (entry.goals) {
+          entry.goals.map((item) => {
+            dataPie[item] ++;
+          })
+        }
+      })
+// hello
+      const pieplotData = []
+      for (const key in dataPie) {
+        pieplotData.push({x: key, y: dataPie[key]})
+      }
+      console.log('my data pie', pieplotData)
+      setPieData(pieplotData)
     }
 
     const fetchData = async () => {
@@ -213,6 +236,7 @@ const VisualizationsScreen = () => {
         await getDataPerWeekDay();
         await getDataPerMonth();
         await getDataForScatter();
+        await getDataForPie();
         console.log('!!!!data', barDailyData, barMonthlyData)
         
       } catch (error) {
@@ -237,6 +261,13 @@ const VisualizationsScreen = () => {
   useEffect(() => {
     updateBarData();
   }, [viewModeBar]);
+
+
+  const sampleData = [
+    { x: "Cats", y: 35 },
+    { x: "Dogs", y: 40 },
+    { x: "Birds", y: 55 }
+  ];
 
   return (
     <View style = {globalStyles.body}>
@@ -385,6 +416,20 @@ const VisualizationsScreen = () => {
             </View>
           )}
         </View>
+
+         {loading ?
+            <View style={{flex: 1, justifyContent:'center'}}>
+              <ActivityIndicator size="large" color="#63086B" />
+            </View>
+          : (
+            <View style={styles.container}>
+              <VictoryPie
+                colorScale={["tomato", "orange", "gold", "cyan", "navy"]}
+                data={pieData}
+              />
+            </View>
+          )}
+       
       
       </ScrollView>
 
