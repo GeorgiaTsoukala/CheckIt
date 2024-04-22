@@ -43,6 +43,10 @@ const LoginScreen = () => {
       style={styles.container}
       behavior="padding"
       >
+      <View style={globalStyles.center}>
+        <Text style={globalStyles.title}>Welcome Back</Text>
+        <Text style={globalStyles.subtitle}>Log in to your account</Text>
+      </View>
       <View style={globalStyles.inputContainer}> 
         <TextInput 
           placeholder="Email"
@@ -65,7 +69,7 @@ const LoginScreen = () => {
          onPress={handleLogin}
          style={styles.button}
         >
-          <Text style={styles.buttonText}>Login</Text>
+          <Text style={styles.buttonText}>LOG IN</Text>
         </TouchableOpacity>        
       </View>
     </KeyboardAvoidingView>
@@ -84,7 +88,7 @@ const styles = StyleSheet.create({
     width: "60%",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 25,
+    marginTop: 50,
   },
   button: {
     width: "100%",

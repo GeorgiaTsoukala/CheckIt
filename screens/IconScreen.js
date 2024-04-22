@@ -20,13 +20,13 @@ const IconScreen = () => {
          onPress={() => navigation.navigate("Login")}
          style={styles.button}
         >
-          <Text style={styles.buttonText}>Login</Text>
+          <Text style={styles.buttonText}>LOG IN</Text>
         </TouchableOpacity>
         <TouchableOpacity
          onPress={() => navigation.navigate("Register")}
          style={[styles.button, styles.buttonOutline]}
         >
-          <Text style={styles.buttonOutlineText}>Register</Text>
+          <Text style={styles.buttonOutlineText}>SIGN UP</Text>
         </TouchableOpacity>
       </View>   
     </View>

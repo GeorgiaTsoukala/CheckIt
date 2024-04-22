@@ -31,12 +31,7 @@ const BottomNavigation = () => {
         name="Home"
         component={HomeScreen}
         options={{
-        //   headerStyle: {
-        //     backgroundColor: "#267777", //"#206464"
-        //   },
-        //   headerTitleStyle: {
-        //     color: "white",
-        //   },
+          unmountOnBlur: true,
           tabBarIcon: ({ focused }) => (
             <View>
               <FontAwesome
@@ -63,6 +58,7 @@ const BottomNavigation = () => {
         name="Checklist"
         component={ChecklistScreen}
         options={{
+          unmountOnBlur: true,
           tabBarIcon: ({ focused }) => (
             <View>
               <MaterialIcons
@@ -89,6 +85,7 @@ const BottomNavigation = () => {
         name="Visualizations"
         component={VisualizationsScreen}
         options={{
+          unmountOnBlur: true,
           tabBarIcon: ({ focused }) => (
             <View>
               <MaterialIcons

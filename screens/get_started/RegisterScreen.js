@@ -53,6 +53,10 @@ const RegisterScreen = () => {
       style={styles.container}
       behavior="padding"
       >
+      <View style={globalStyles.center}>
+        <Text style={globalStyles.title}>Welcome</Text>
+        <Text style={globalStyles.subtitle}>Create a new account</Text>
+      </View>
       <View style={globalStyles.inputContainer}> 
         <TextInput 
           placeholder="Name"
@@ -82,7 +86,7 @@ const RegisterScreen = () => {
          onPress={handleRegister}
          style={[styles.button, styles.buttonOutline]}
         >
-          <Text style={styles.buttonOutlineText}>Register</Text>
+          <Text style={styles.buttonOutlineText}>SIGN UP</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -101,7 +105,7 @@ const styles = StyleSheet.create({
     width: "60%",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 25,
+    marginTop: 50,
   },
   button: {
     width: "100%",

@@ -1,12 +1,13 @@
 import { StyleSheet, Text, Dimensions, TouchableOpacity, View, TouchableWithoutFeedback, FlatList, Modal, Image } from 'react-native'
-import React, { useEffect, useState} from 'react'
-import { Timestamp, addDoc, collection, doc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react'
+import { Timestamp, addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
 import moment from 'moment';
 import globalStyles from '../globalStyles';
 import Card from './CardComponent';
 import Toast from 'react-native-simple-toast';
 import { AntDesign } from '@expo/vector-icons';
+import { Button } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
@@ -266,7 +267,6 @@ const ChecklistScreen = () => {
       </View>
 
       {/* header */}
-      {/* {value.toDateString() === (new Date()).toDateString() && */}
       { savedData ?
         <View style={globalStyles.center}>  
           <Text style={globalStyles.title}>Your day</Text>
@@ -279,7 +279,7 @@ const ChecklistScreen = () => {
         </View>
        }
 
-      {/* category cards */}      
+      {/*category cards*/}      
       <FlatList
         style = {{flex: 1, marginBottom: '25%'}}
         data={Object.entries(catGoals)}
@@ -291,6 +291,14 @@ const ChecklistScreen = () => {
       />
 
       {/* button */}
+      {/* { !savedData && 
+        <View style={[globalStyles.center, globalStyles.btnContainer]} >
+          <Button mode="contained" onPress={() => console.log('Pressed')} style={{ width: '40%' }} buttonColor="#D7B4EC">
+            <Text style={styles.btnText}>Save</Text>
+          </Button>
+        </View>
+      } */}
+      
       { !savedData && 
         <View style={[globalStyles.center, globalStyles.btnContainer]}>
           <TouchableOpacity
@@ -309,6 +317,15 @@ const ChecklistScreen = () => {
 export default ChecklistScreen
 
 const styles = StyleSheet.create({
+  button: {
+    width: '40%',
+    alignItems: 'center',
+  },
+  btnText: {
+    fontSize: 18,
+    color: 'black',
+    fontWeight: '500',
+  },
   // popup
   modalBody: {
     backgroundColor: 'white',
