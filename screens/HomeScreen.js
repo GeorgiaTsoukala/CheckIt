@@ -5,17 +5,38 @@ import { signOut } from 'firebase/auth';
 import { auth, datab } from '../firebase';
 import { MaterialIcons } from '@expo/vector-icons';
 import globalStyles from '../globalStyles';
-import { doc, getDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { Card, Chip, MD3Colors, ProgressBar, Title } from 'react-native-paper';
+import moment from 'moment';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const [name, setName] = useState("");
+  const [name, setName] = useState(""); 
+  const [catGoals, setCatGoals] = useState({});  //get the selected categories from the database
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [goals, setGoals] = useState([]);
   const [activeButton, setActiveButton] = useState("");
 
   useEffect(() => {
     updateScreen();
+    fetchCatGoals(); 
   }, []);
+
+  const fetchCatGoals = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(datab, "users", auth.currentUser.uid, "categories"));
+      const categoryGoals = {};
+
+      querySnapshot.forEach(async (categoryDoc) => {
+        const goals = categoryDoc.data().goals;
+        categoryGoals[categoryDoc.id] = goals;
+      });
+
+      setCatGoals(categoryGoals);
+    } catch (error) {
+      console.error('Error fetching selected categories and goals:', error);
+    }
+  }   
 
   const updateScreen = async () => {
     const response = await getDoc(doc(datab, "users", auth.currentUser.uid));
@@ -37,24 +58,55 @@ const HomeScreen = () => {
     }
   };
 
-  const handleButtonPress = async (buttonName) => {
+  const getCardData = async () => {
+    // save current timestamp
+    const currentTimestamp = moment();    
+
+    // Fetch data
     try {
-      // Fetch goals based on the button pressed
-      const response = await getDoc(doc(datab, "users", auth.currentUser.uid, "categories", buttonName));
-      if (response?.data() && response.data().goals) {      
-        setGoals(response.data().goals);
+      const dailyDataRef = collection(datab, "users", auth.currentUser.uid, "dailydata");
+
+      // Set currentTimestamp to midnight (start of the day)
+      currentTimestamp.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+      
+      // Calculate the start and end timestamps for the week back
+      const startTimestamp = currentTimestamp.clone().subtract(7, 'days').toDate();
+      const endTimestamp = currentTimestamp.toDate();
+      
+      // Create a Firestore query to retrieve documents for the selected dates
+      const q = query(
+        dailyDataRef,
+        where('timestamp', '>=', startTimestamp), // Greater than or equal to start of selectedDate
+        where('timestamp', '<', endTimestamp) // Less than end of selectedDate (start of next day)
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {        
+        querySnapshot.forEach((doc) => {
+          console.log(doc.data())
+        });
       } else {
-        setGoals([]);
+        setSavedData(false);
       }
-      setActiveButton(buttonName);
+
     } catch (error) {
-      console.error('Error fetching goals:', error);
+      console.error('Error fetching selected categories:', error);
     }
+    
+  }
+
+  // Toggles the selection state of a category
+  const handleChipPress = (category) => {
+    setSelectedCategory((prevCategory) => (prevCategory === category ? null : category));
+    getCardData();
   };
 
   return (
     <View style={globalStyles.body}>
       <View style={globalStyles.center}>
+
+        {/* log out icon */}
         <MaterialIcons
           name="logout"
           size={20}
@@ -66,63 +118,45 @@ const HomeScreen = () => {
           }}
           onPress={handleSignOut}
         />
+
         <Text style={globalStyles.title}>Hello {name}</Text>
         <Text style={globalStyles.subtitle}>You are doing great so far!</Text>
-        <ScrollView 
-          horizontal={true} 
-          contentContainerStyle={styles.buttonContainer}
-          snapToAlignment={'start'} // Align the left edge of the content to the left side of the ScrollView
-          // snapToInterval={'27%'}
-        >
-          <TouchableOpacity 
-            style={[styles.button, activeButton === 'Health' ? styles.activeButton : null]} 
-            onPress={() => handleButtonPress('Health')}
-          >
-            <Text style={[styles.buttonText, activeButton === 'Health' ? styles.activeButtonText : null]}>Health</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.button, activeButton === 'Productivity' ? styles.activeButton : null]} 
-            onPress={() => handleButtonPress('Productivity')}
-          >
-            <Text style={[styles.buttonText, activeButton === 'Productivity' ? styles.activeButtonText : null]}>Productivity</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.button, activeButton === 'Finance' ? styles.activeButton : null]} 
-            onPress={() => handleButtonPress('Finance')}
-          >
-            <Text style={[styles.buttonText, activeButton === 'Finance' ? styles.activeButtonText : null]}>Finance</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.button, activeButton === 'Intellect' ? styles.activeButton : null]} 
-            onPress={() => handleButtonPress('Intellect')}
-          >
-            <Text style={[styles.buttonText, activeButton === 'Intellect' ? styles.activeButtonText : null]}>Intellect</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.button, activeButton === 'Creativity' ? styles.activeButton : null]} 
-            onPress={() => handleButtonPress('Creativity')}
-          >
-            <Text style={[styles.buttonText, activeButton === 'Creativity' ? styles.activeButtonText : null]}>Creativity</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
 
-      {/* Display goals or message */}
-      <View style={styles.goalsContainer}>
-        {goals.length > 0 ? (
-          <>
-            <Text style={styles.goalsTitle}>{activeButton} Goals</Text>
-            {goals.map((goal, index) => (
-              <View key={index} style={styles.goalBox}>
-                <Text>{goal}</Text>
-                {/* Add additional information and progress bar here */}
-              </View>
+        {/* categories */}
+        <ScrollView horizontal>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom : 10}}>
+            {Object.keys(catGoals).map((key) => (
+              <Chip
+                key={key}
+                style={{ margin: 4 }}
+                selected={selectedCategory === key}
+                onPress={() => handleChipPress(key)}
+                disabled={key !== 'Health'}
+              >
+                {key}
+              </Chip>
             ))}
-          </>
-        ) : (
-          <Text style={styles.noGoalsText}>No goals selected for {activeButton}</Text>
-        )}
-      </View>
+          </View>
+        </ScrollView>
+
+        {/* goal cards */}
+        <ScrollView horizontal>
+          {selectedCategory &&
+            catGoals[selectedCategory].map((goal, index) => (
+              <Card mode="elevated" key={index} style={{ margin: 10, width: 200, height: 105 }}>
+                <Card.Title title={goal} />
+                <Card.Content style={{ marginTop: 10 }}>
+                    <Text style={{ marginBottom: 5 }}>4/7 this week</Text>
+                    <ProgressBar progress={0.5} color={"#8E2EA6"} />
+                </Card.Content>
+              </Card>
+            ))}
+        </ScrollView>
+
+        {/* graph */}
+        <Text style={globalStyles.subtitle}>The graph goes here</Text>
+
+      </View>      
     </View>
   );
 };

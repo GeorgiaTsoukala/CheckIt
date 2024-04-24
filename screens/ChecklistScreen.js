@@ -7,7 +7,7 @@ import globalStyles from '../globalStyles';
 import Card from './CardComponent';
 import Toast from 'react-native-simple-toast';
 import { AntDesign } from '@expo/vector-icons';
-import { Button } from 'react-native-paper';
+import { Button, Divider } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
@@ -230,6 +230,7 @@ const ChecklistScreen = () => {
       </Modal>
 
       {/* calendar */}
+      <Divider />
       <View style={styles.picker}>
             <View
               style={[styles.itemRow, { paddingHorizontal: 8 }]}
@@ -265,6 +266,7 @@ const ChecklistScreen = () => {
               })}
             </View>
       </View>
+      <Divider />
 
       {/* header */}
       { savedData ?
@@ -353,7 +355,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 50
+    marginTop: 5,
+    marginBottom: 5
   },
   /** Item */
   item: {

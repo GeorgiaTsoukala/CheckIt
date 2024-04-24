@@ -4,7 +4,7 @@ import globalStyles from '../globalStyles'
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
 import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryPie, VictoryScatter, VictoryTheme } from "victory-native";
-import { RadioButton } from 'react-native-paper';
+import { Divider, RadioButton } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
@@ -347,6 +347,8 @@ const VisualizationsScreen = () => {
           )}
         </View>
 
+        <Divider />
+
         {/* second diagram */}
         <View>
           {/* <View style={styles.toggleContainer}>
@@ -417,6 +419,10 @@ const VisualizationsScreen = () => {
           )}
         </View>
 
+        <Divider />
+
+        {/* third diagram */}
+        <View>
          {loading ?
             <View style={{flex: 1, justifyContent:'center'}}>
               <ActivityIndicator size="large" color="#63086B" />
@@ -429,7 +435,7 @@ const VisualizationsScreen = () => {
               />
             </View>
           )}
-       
+        </View>
       
       </ScrollView>
 

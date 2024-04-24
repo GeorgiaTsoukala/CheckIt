@@ -90,7 +90,7 @@ const BottomNavigation = () => {
             <View>
               <MaterialIcons
                 name="auto-graph"
-                size={focused ? 30 : 24}
+                size={24}
                 style={{
                   alignSelf: "center",
                   color: focused ? "white" : "black",

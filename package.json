@@ -28,7 +28,8 @@
     "react-native-snap-carousel": "^3.9.1",
     "react-native-swiper": "^1.6.0",
     "react-native-toast-message": "^2.2.0",
-    "victory-native": "^37.0.2"
+    "victory-native": "^37.0.2",
+    "expo-updates": "~0.24.12"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
