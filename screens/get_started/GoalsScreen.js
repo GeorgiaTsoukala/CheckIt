@@ -5,6 +5,7 @@ import Carousel, { Pagination } from 'react-native-snap-carousel';
 import { AntDesign } from '@expo/vector-icons';
 import { auth, datab } from '../../firebase';
 import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
+import Toast from 'react-native-simple-toast';
 import globalStyles from '../../globalStyles';
 
 const GoalsScreen = () => {
@@ -59,21 +60,32 @@ const GoalsScreen = () => {
 
   const handleDone = async () => {
     try {
+      let emptyCategory = false;
 
       for (let i = 0; i < filteredData.length; i++) {
-        //extract selected goals from filteredData & goalStates
+        // Extract selected goals from filteredData & goalStates
         const { title, goals } = filteredData[i];
         const selectedGoals = goals.filter((goal, index) => goalStates[i][index]);
 
-        //save selected goals in the corresponding category document in categories collection
-        await setDoc(doc(datab, "users", auth.currentUser.uid, "categories", title), {goals: selectedGoals});
+        if (selectedGoals.length === 0) {
+          emptyCategory = true;
+          break;
+        } else {
+          // Save selected goals in the corresponding category document in categories collection
+          await setDoc(doc(datab, "users", auth.currentUser.uid, "categories", title), { goals: selectedGoals });
+        }
       }
 
-      //remove existing screens from the stack, add BottomNavigation to it and navigate there
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'BottomNavigation' }]
-      });
+      if (emptyCategory) { // If any category has no selected goals, show a toast message
+        // alert('Please select at least one goal for each category.');
+        Toast.show('Please select at least one goal for each category.')
+      } else {
+        // Remove existing screens from the stack, add BottomNavigation to it and navigate there
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'BottomNavigation' }]
+        });
+      }
     } catch (error) {
       alert(error.message);
     }

@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { signOut } from 'firebase/auth';
 import { auth, datab } from '../firebase';
 import { MaterialIcons } from '@expo/vector-icons';
-import globalStyles from '../globalStyles';
+import globalStyles, { colors } from '../globalStyles';
 import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryStack} from "victory-native";
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { Card, Chip, MD3Colors, ProgressBar, Title } from 'react-native-paper';
@@ -12,15 +12,16 @@ import moment from 'moment';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const [name, setName] = useState(""); 
-  const [catGoals, setCatGoals] = useState({});  //get the selected categories from the database
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [goals, setGoals] = useState([]);
-  const [activeButton, setActiveButton] = useState("");
+
+  const [name, setName] = useState(""); // user's name
+  const [catGoals, setCatGoals] = useState({});  // store the selected categories and their goals
+  const [goalProgress, setGoalProgress] = useState({}); // store the progress data for each goal
+  const [selectedCategory, setSelectedCategory] = useState(null); //selected category from Chip to be displayed
 
   useEffect(() => {
     updateScreen();
     fetchCatGoals(); 
+    getCardData();
   }, []);
 
   const fetchCatGoals = async () => {
@@ -77,18 +78,35 @@ const HomeScreen = () => {
       // Create a Firestore query to retrieve documents for the selected dates
       const q = query(
         dailyDataRef,
-        where('timestamp', '>=', startTimestamp), // Greater than or equal to start of selectedDate
-        where('timestamp', '<', endTimestamp) // Less than end of selectedDate (start of next day)
+        where('timestamp', '>=', startTimestamp), 
+        where('timestamp', '<', endTimestamp) 
       );
 
       const querySnapshot = await getDocs(q);
 
-      if (!querySnapshot.empty) {        
+      if (!querySnapshot.empty) {
+        const progressData = {};
+  
+        // Count occurrences of each goal
         querySnapshot.forEach((doc) => {
-          console.log(doc.data())
+          const { goals } = doc.data();
+          goals.forEach((goal) => {
+            progressData[goal] = (progressData[goal] || 0) + 1;
+          });
         });
+  
+        // Save fraction progress for each goal
+        const totalDays = 7;
+        const goalProgressFraction = {};
+        Object.keys(progressData).forEach((goal) => {
+          goalProgressFraction[goal] = `${progressData[goal]}/${totalDays}`;
+        });
+  
+        // Update state with progress data
+        setGoalProgress(goalProgressFraction);
       } else {
-        setSavedData(false);
+        // No data found
+        setGoalProgress({});
       }
 
     } catch (error) {
@@ -100,7 +118,6 @@ const HomeScreen = () => {
   // Toggles the selection state of a category
   const handleChipPress = (category) => {
     setSelectedCategory((prevCategory) => (prevCategory === category ? null : category));
-    getCardData();
   };
 
   return (
@@ -144,11 +161,20 @@ const HomeScreen = () => {
         <ScrollView horizontal>
           {selectedCategory &&
             catGoals[selectedCategory].map((goal, index) => (
-              <Card mode="elevated" key={index} style={{ margin: 10, width: 200, height: 105 }}>
-                <Card.Title title={goal} />
-                <Card.Content style={{ marginTop: 10 }}>
-                    <Text style={{ marginBottom: 5 }}>4/7 this week</Text>
-                    <ProgressBar progress={0.5} color={"#8E2EA6"} />
+              <Card mode="contained" key={index} style={styles.card}>
+                <Card.Title
+                  title="This Week"
+                  subtitle={goal}
+                  titleStyle={{ color: colors.grey400, fontSize: 14, fontWeight: 'normal' }}
+                  subtitleStyle={{ color: 'black', fontSize: 14, fontWeight: 'bold' }}
+                />
+                <Card.Content style={styles.cardContent}>
+                  <Text style={styles.progressText}>{goalProgress[goal] || '0/7'}</Text>
+                  <ProgressBar
+                    progress={goalProgress[goal] ? parseInt(goalProgress[goal].split('/')[0]) / 7 : 0}
+                    color={colors.health}
+                    style={styles.progressBar}
+                  />
                 </Card.Content>
               </Card>
             ))}
@@ -156,7 +182,7 @@ const HomeScreen = () => {
 
         {/* graph */}
         {/* <Text style={globalStyles.subtitle}>The graph goes here</Text> */}
-        <VictoryChart
+        {/* <VictoryChart
             height={200}
             domainPadding={15}
             padding={{left: 70, top: 50, bottom: 40, right: 20}}
@@ -212,7 +238,7 @@ const HomeScreen = () => {
               />
             </VictoryStack>
             <VictoryAxis/>
-          </VictoryChart>
+          </VictoryChart> */}
 
       </View>      
     </View>
@@ -222,6 +248,26 @@ const HomeScreen = () => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+  card: {
+    margin: 10,
+    width: 175,
+    height: 175,
+    backgroundColor: 'white'
+  },
+  cardContent: {
+    marginTop: 25,
+  },
+  progressBar: {
+    height: 4,
+    borderRadius: 5,
+    backgroundColor: 'black',
+  },
+  progressText: {
+    marginBottom: 5,
+    fontSize: 35,
+    fontWeight: 'bold',
+    textAlign: 'right',
+  },
   buttonContainer: {
     marginTop: 0,
     flexDirection: 'row',

@@ -3,11 +3,11 @@ import React, { useEffect, useState } from 'react'
 import { Timestamp, addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
 import moment from 'moment';
-import globalStyles from '../globalStyles';
+import globalStyles, { colors } from '../globalStyles';
 import Card from './CardComponent';
 import Toast from 'react-native-simple-toast';
 import { AntDesign } from '@expo/vector-icons';
-import { Button, Divider } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
@@ -230,7 +230,6 @@ const ChecklistScreen = () => {
       </Modal>
 
       {/* calendar */}
-      <Divider />
       <View style={styles.picker}>
             <View
               style={[styles.itemRow, { paddingHorizontal: 8 }]}
@@ -245,18 +244,24 @@ const ChecklistScreen = () => {
                       style={[
                         styles.item,
                         isActive && {
-                          backgroundColor: '#D7B4EC',
+                          backgroundColor: 'black',
                         },
                       ]}>
                       <Text
                         style={[
                           styles.itemWeekday,
+                          isActive && {
+                            color: colors.grey50,
+                          },
                         ]}>
                         {item.weekday}
                       </Text>
                       <Text
                         style={[
                           styles.itemDate,
+                          isActive && {
+                            color: colors.grey50,
+                          },
                         ]}>
                         {item.date.getDate()}
                       </Text>
@@ -266,7 +271,6 @@ const ChecklistScreen = () => {
               })}
             </View>
       </View>
-      <Divider />
 
       {/* header */}
       { savedData ?
@@ -293,15 +297,15 @@ const ChecklistScreen = () => {
       />
 
       {/* button */}
-      {/* { !savedData && 
+      { !savedData && 
         <View style={[globalStyles.center, globalStyles.btnContainer]} >
-          <Button mode="contained" onPress={() => console.log('Pressed')} style={{ width: '40%' }} buttonColor="#D7B4EC">
-            <Text style={styles.btnText}>Save</Text>
+          <Button mode="contained" onPress={handleSave} style={globalStyles.button} buttonColor='black'>
+            <Text style={globalStyles.btnText}>Save</Text>
           </Button>
         </View>
-      } */}
+      }
       
-      { !savedData && 
+      {/* { !savedData && 
         <View style={[globalStyles.center, globalStyles.btnContainer]}>
           <TouchableOpacity
             onPress={handleSave}
@@ -310,7 +314,7 @@ const ChecklistScreen = () => {
             <Text style={globalStyles.btnText}>Save</Text>
           </TouchableOpacity>
         </View>
-      }
+      } */}
 
     </View>
   )
@@ -319,15 +323,6 @@ const ChecklistScreen = () => {
 export default ChecklistScreen
 
 const styles = StyleSheet.create({
-  button: {
-    width: '40%',
-    alignItems: 'center',
-  },
-  btnText: {
-    fontSize: 18,
-    color: 'black',
-    fontWeight: '500',
-  },
   // popup
   modalBody: {
     backgroundColor: 'white',
@@ -356,7 +351,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 5,
-    marginBottom: 5
+    marginBottom: 20
   },
   /** Item */
   item: {
@@ -373,13 +368,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   itemWeekday: {
-    fontSize: 20,
-    fontWeight: '500',
+    fontSize: 18,
+    color: colors.grey600,
     marginBottom: 4,
   },
   itemDate: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 18,
+    color: colors.grey600
   },
 
   // checkbox
