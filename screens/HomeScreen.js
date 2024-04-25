@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { signOut } from 'firebase/auth';
 import { auth, datab } from '../firebase';
 import { MaterialIcons } from '@expo/vector-icons';
 import globalStyles from '../globalStyles';
+import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryStack} from "victory-native";
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { Card, Chip, MD3Colors, ProgressBar, Title } from 'react-native-paper';
 import moment from 'moment';
@@ -154,7 +155,64 @@ const HomeScreen = () => {
         </ScrollView>
 
         {/* graph */}
-        <Text style={globalStyles.subtitle}>The graph goes here</Text>
+        {/* <Text style={globalStyles.subtitle}>The graph goes here</Text> */}
+        <VictoryChart
+            height={200}
+            domainPadding={15}
+            padding={{left: 70, top: 50, bottom: 40, right: 20}}
+          >
+            <VictoryLabel
+              text={"Strike of your last 14 days"}
+              x={Dimensions.get('window').width / 2} // Adjust this value to center the title horizontally
+              y={30} // Adjust this value to position the title vertically
+              textAnchor="middle"
+              // style={{ fontSize: 18, fill: "#333" }}
+            />
+            <VictoryAxis
+              dependentAxis
+              tickValues={ [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]} 
+            />
+            <VictoryStack
+              horizontal
+              // height={150}
+              colorScale={["grey", "green"]}
+            >
+              <VictoryBar
+                data={[
+                  {x: 'Eating\nhealthy', y: 0},
+                  {x: 'Sleeping\nenough', y: 2},
+                  {x: 'Exercise', y: 1}
+                ]}
+                barWidth={30}
+                // barRatio={1.0} 
+              />
+              <VictoryBar
+                data={[
+                  {x: 'Eating\nhealthy', y: 1},
+                  {x: 'Sleeping\nenough', y: 1},
+                  {x: 'Exercise', y: 4}
+                ]}
+                barWidth={30}
+              />
+              <VictoryBar
+                data={[
+                  {x: 'Eating\nhealthy', y: 3},
+                  {x: 'Sleeping\nenough', y: 1},
+                  {x: 'Exercise', y: 3}
+                ]}
+                barWidth={30}
+              />
+               <VictoryBar
+                data={[
+                  {x: 'Eating\nhealthy', y: 2},
+                  {x: 'Sleeping\nenough', y: 1},
+                  {x: 'Exercise', y: 0}
+                ]}
+                barWidth={30}
+              />
+            </VictoryStack>
+            <VictoryAxis/>
+          </VictoryChart>
 
       </View>      
     </View>
