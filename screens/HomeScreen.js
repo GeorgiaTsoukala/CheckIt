@@ -49,12 +49,12 @@ const HomeScreen = () => {
 
   const handleSignOut = async () => {
     try {      
-      await signOut(auth).then(() => {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'IconGetStarted' }]
-        });
+      await signOut(auth); //.then(() => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'IconGetStarted' }]
       });
+      //});
     } catch (error) {
       alert(error.message);
     }

@@ -1,23 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { doc, setDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
 import { auth, datab } from '../../firebase';
 import globalStyles from '../../globalStyles';
 import { Button } from 'react-native-paper';
-
-const categoriesData = [
-  { name: 'Productivity', isChecked: false },
-  { name: 'Health', isChecked: true },
-  { name: 'Finance', isChecked: false },
-  { name: 'Intellect', isChecked: false },
-  { name: 'Creativity', isChecked: false },
-];
-
+ 
 const ChecklistScreen = () => {
   const navigation = useNavigation();
 
-  const [categories, setCategories] = useState(categoriesData);
+  const [categories, setCategories] = useState([]); //this line only runs once during the initial rendering of the component
+
+  // if we want the data of the selected categories to be reset every time the component renders, we need to init their state inside a useEffect function.
+  useEffect(() => {
+    // Load categories data when the component mounts
+    const categoriesData = [
+      { name: 'Productivity', isChecked: false },
+      { name: 'Health', isChecked: true },
+      { name: 'Finance', isChecked: false },
+      { name: 'Intellect', isChecked: false },
+      { name: 'Creativity', isChecked: false },
+    ];
+    setCategories(categoriesData);
+  }, []);
 
   const handleCategoryToggle = (index) => {
     const updatedCategories = [...categories];
@@ -27,17 +32,28 @@ const ChecklistScreen = () => {
 
   const handleNext = async () => {
     try {
-      //create list of selected categories
-      let checkedCategories = categories.filter(category => category.isChecked).map(category => category.name);
-      
-      //make a subcollection in users database with the selected categories as documents
-      const promises = checkedCategories.map(async (categoryName) => {
-        await setDoc(doc(datab, "users", auth.currentUser.uid, "categories", categoryName), {});
-      });
-    
-      await Promise.all(promises);
+      // Get a reference to the categories collection
+      const categoriesRef = collection(datab, "users", auth.currentUser.uid, "categories");
 
-      //place Goals screen in the stack, navigate there (with the ability to go back)
+      // First, delete all documents inside the categories collection, if they exist
+      const querySnapshot = await getDocs(categoriesRef);
+      if (!querySnapshot.empty) {
+          const deletePromises = querySnapshot.docs.map(async (doc) => {
+              await deleteDoc(doc.ref);
+          });
+          await Promise.all(deletePromises);
+      }
+
+      console.log('Pressed Next');
+
+      // Then add the selected categories to the database
+      const checkedCategories = categories.filter(category => category.isChecked).map(category => category.name);
+      const addCategoryPromises = checkedCategories.map(async (categoryName) => {
+          await setDoc(doc(categoriesRef, categoryName), {});
+      });
+      await Promise.all(addCategoryPromises);
+
+      // Place Goals screen in the stack and navigate there (with the ability to go back)
       navigation.navigate("Goals");
     } catch (error) {
       alert(error.message);
