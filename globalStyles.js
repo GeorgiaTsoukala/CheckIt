@@ -40,7 +40,7 @@ const globalStyles = StyleSheet.create({
     // button    
     btnContainer: {
         position: 'absolute', 
-        bottom: 30, 
+        bottom: 70, 
         width: '100%'
     },
     button: {

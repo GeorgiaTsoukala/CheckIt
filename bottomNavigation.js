@@ -16,14 +16,7 @@ const BottomNavigation = () => {
         tabBarHideOnKeyboard: true,
         tabBarShowLabel: false,
         tabBarStyle: {
-          marginBottom: 16,
-          marginLeft: 16,
-          marginRight: 16,
-          // elevation: 0,
-          borderRadius: 15,
-          // backgroundColor: "gainsboro",
-          height: 60,
-          ...styles.mybackground,
+          ...styles.navigator,
         },
       }}
     >
@@ -115,7 +108,14 @@ const BottomNavigation = () => {
 export default BottomNavigation;
 
 const styles = StyleSheet.create({
-  mybackground: {
-    backgroundColor: 'white',
+  navigator: {
+    position: 'absolute', // Position the tab bar absolutely
+    bottom: 16,
+    left: 16,
+    right: 16,
+    // elevation: 0,
+    borderRadius: 15,
+    backgroundColor: '#ffffff',
+    height: 60,
   }
 })
