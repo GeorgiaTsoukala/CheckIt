@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, datab } from '../../firebase';
 import globalStyles from '../../globalStyles';
+import { Button } from 'react-native-paper';
 
 const categoriesData = [
   { name: 'Productivity', isChecked: false },
@@ -64,13 +65,11 @@ const ChecklistScreen = () => {
         </View>
       ))}
 
-      <View style={[globalStyles.center, globalStyles.btnContainer]}>
-        <TouchableOpacity
-          onPress={handleNext}
-          style={globalStyles.button}
-        >
+      {/* button */}
+      <View style={[globalStyles.center, globalStyles.btnContainer]} >
+        <Button mode="contained" onPress={handleNext} style={globalStyles.button} buttonColor='black'>
           <Text style={globalStyles.btnText}>Next</Text>
-        </TouchableOpacity>
+        </Button>
       </View>
     </View>
   );

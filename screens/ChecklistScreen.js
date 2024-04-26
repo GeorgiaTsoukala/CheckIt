@@ -217,6 +217,11 @@ const ChecklistScreen = () => {
               <Image style={styles.emotionItem} source={require('../assets/emotions/very_happy.png')} />
             </TouchableOpacity>
           </View>
+            <View style={[globalStyles.center, globalStyles.btnContainer]} >
+              <Button mode="contained" onPress={handleFinish} style={globalStyles.button} buttonColor='black'>
+                <Text style={globalStyles.btnText}>Finish</Text>
+              </Button>
+            </View>
             <View style={[globalStyles.center, globalStyles.btnContainer]}>
               <TouchableOpacity
                 onPress={handleFinish}

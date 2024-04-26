@@ -7,6 +7,7 @@ import { auth, datab } from '../../firebase';
 import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
 import Toast from 'react-native-simple-toast';
 import globalStyles from '../../globalStyles';
+import { Button } from 'react-native-paper';
 
 const GoalsScreen = () => {
   const navigation = useNavigation();
@@ -148,13 +149,11 @@ const GoalsScreen = () => {
         />
       </View>
 
-      <View style={[globalStyles.center, globalStyles.btnContainer]}>
-        <TouchableOpacity
-          onPress={handleDone}
-          style={globalStyles.button}
-        >
+      {/* button */}
+      <View style={[globalStyles.center, globalStyles.btnContainer]} >
+        <Button mode="contained" onPress={handleDone} style={globalStyles.button} buttonColor='black'>
           <Text style={globalStyles.btnText}>Done</Text>
-        </TouchableOpacity>
+        </Button>
       </View>
     </View>
   );
