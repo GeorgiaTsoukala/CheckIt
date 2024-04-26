@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import globalStyles from '../globalStyles'
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
-import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryPie, VictoryScatter, VictoryTheme } from "victory-native";
+import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryLegend, VictoryPie, VictoryScatter, VictoryTheme } from "victory-native";
 import { Divider, RadioButton } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
@@ -269,6 +269,13 @@ const VisualizationsScreen = () => {
     { x: "Birds", y: 55 }
   ];
 
+  const pieColorScale = ["tomato", "orange", "gold"];
+  const pieDatathis = [
+    { x: "A", y: 50 },
+    { x: "B", y: 30 },
+    { x: "C", y: 20 },
+  ];
+
   return (
     <View style = {globalStyles.body}>
       <View style = {globalStyles.center}>
@@ -305,14 +312,16 @@ const VisualizationsScreen = () => {
                 // prevent it from overlapping the axis
                 domainPadding={15}
                 theme={VictoryTheme.material}
+                padding={{ top: 10, bottom: 50, left: 50, right: 50 }} 
+                height={300}
               >
-                <VictoryLabel
+                {/* <VictoryLabel
                   text={viewModeBar === 'days' ? "Daily Accomplished Goals Percentage" : "Monthly Accomplished Goals Percentage"}
                   x={Dimensions.get('window').width / 2} // Adjust this value to center the title horizontally
                   y={30} // Adjust this value to position the title vertically
                   textAnchor="middle"
                   style={{ fontSize: 18, fill: "#333" }}
-              />
+                /> */} // Let's put the titles outside of the graphs so that the title appears above the activity indicator.
                 <VictoryAxis
                   // tickValues specifies both the number of ticks and where
                   // they are placed on the axis
@@ -342,7 +351,9 @@ const VisualizationsScreen = () => {
                     data: { fill: '#A2B1F7' },
                   }}
                 />
+
               </VictoryChart>
+
             </View>
           )}
         </View>
@@ -376,6 +387,8 @@ const VisualizationsScreen = () => {
                 // prevent it from overlapping the axis
                 domainPadding={15}
                 theme={VictoryTheme.material}
+                // padding={{ top: 0, bottom: 50, left: 70, right: 50 }} 
+
               >
                 <VictoryLabel
                   text={viewModeScatter === 'days' ? "Relation of Emotions and Accomplished Goals" : "Monthly"}
@@ -397,7 +410,13 @@ const VisualizationsScreen = () => {
                 <VictoryAxis
                   dependentAxis
                   // tickFormat specifies how ticks should be displayed
-                  tickFormat={(x) => (`${x}%`)}
+                  tickFormat={(x) => {
+                    if (x % 1 !== 0) {
+                      return `${x.toFixed(2)}%`; // Display with two decimal points
+                    } else {
+                      return `${x}%`; // Display without any decimal points
+                    }
+                  }} //(`${x}%`)
                   style={{
                     tickLabels: { fontSize: 12, color: '#86929e' },
                     // axis: { stroke: "transparent" }, // Hide the axis line
@@ -436,6 +455,34 @@ const VisualizationsScreen = () => {
             </View>
           )}
         </View>
+
+        <View style={{flex: 1, alignItems: 'center', justifyContent:'center'}}>
+          <VictoryPie
+            // padAngle={({ datum }) => datum.y}
+            colorScale={pieColorScale}
+            data={pieData}
+            labels={() => ''}
+            style={{
+              data: {
+                fillOpacity: 0.9, stroke: "#ffffff", strokeWidth: 3
+              }
+            }}
+            // Other props for your VictoryPie component
+          />
+          <VictoryLegend
+            // x={Dimensions.get('window').width / 2} // Adjust the x position of the legend
+            // y={0} // Adjust the y position of the legend
+            orientation="horizontal" // Display the legend horizontally
+            itemsPerRow={3}
+            gutter={20} // Add spacing between legend items
+            data={pieData.map(({ x }, index) => ({
+              name: x,
+              symbol: { fill: pieColorScale[index % pieColorScale.length] }, // Use color from color scale
+            }))}
+          />
+        </View>
+
+        <View style={{height: 100}}></View>
       
       </ScrollView>
 
@@ -447,6 +494,7 @@ export default VisualizationsScreen
 
 const styles = StyleSheet.create({
    container: {
+    // padding:10
     // flex: 1,
     // justifyContent: "center",
     // alignItems: "center",
