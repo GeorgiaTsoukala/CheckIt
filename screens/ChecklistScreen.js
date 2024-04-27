@@ -1,4 +1,4 @@
-import { StyleSheet, Text, Dimensions, TouchableOpacity, View, TouchableWithoutFeedback, FlatList, Modal, Image } from 'react-native'
+import { StyleSheet, Text, Dimensions, TouchableOpacity, View, TouchableWithoutFeedback, FlatList, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Timestamp, addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
@@ -6,8 +6,7 @@ import moment from 'moment';
 import globalStyles, { colors } from '../globalStyles';
 import Card from './CardComponent';
 import Toast from 'react-native-simple-toast';
-import { AntDesign } from '@expo/vector-icons';
-import { Button } from 'react-native-paper';
+import { Button, Modal, PaperProvider, Portal } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
@@ -172,156 +171,140 @@ const ChecklistScreen = () => {
   }
 
   return (
-    <View style={globalStyles.body}>
+    <PaperProvider>
+      <View style={globalStyles.body}>
 
-      {/* popup */}      
-      <Modal transparent visible={modalOpen} animationType="slide">        
-        <View style={styles.modalBody}>
-          <AntDesign 
-            name="closecircleo"
-            size={24}
-            style={{ alignSelf: "center", marginBottom: 10}}
-            onPress={() => (setModalOpen(false))}
-          />
-          <Text style={globalStyles.title}>Let's wrap up your day!</Text>
-          <Text style={globalStyles.subtitle}>How did you feel overall today?</Text>
-          <View style={styles.emotionList}>
-            <TouchableOpacity 
-              onPress={() => setSelectedEmotion('very_sad')}
-              style={selectedEmotion === 'very_sad' ? { opacity: 1 } : { opacity: 0.7 }}
-            >
-              <Image style={styles.emotionItem} source={require('../assets/emotions/very_sad.png')} />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={() => setSelectedEmotion('sad')}
-              style={selectedEmotion === 'sad' ? { opacity: 1 } : { opacity: 0.7 }}
-            >
-              <Image style={styles.emotionItem} source={require('../assets/emotions/sad.png')} />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={() => setSelectedEmotion('neutral')}
-              style={selectedEmotion === 'neutral' ? { opacity: 1 } : { opacity: 0.7 }}
-            >
-              <Image style={styles.emotionItem} source={require('../assets/emotions/neutral.png')} />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={() => setSelectedEmotion('happy')}
-              style={selectedEmotion === 'happy' ? { opacity: 1 } : { opacity: 0.7 }}
-            >
-              <Image style={styles.emotionItem} source={require('../assets/emotions/happy.png')} />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={() => setSelectedEmotion('very_happy')}
-              style={selectedEmotion === 'very_happy' ? { opacity: 1 } : { opacity: 0.7 }}
-            >
-              <Image style={styles.emotionItem} source={require('../assets/emotions/very_happy.png')} />
-            </TouchableOpacity>
-          </View>
-            <View style={[globalStyles.center, globalStyles.btnContainer]} >
-              <Button mode="contained" onPress={handleFinish} style={globalStyles.button} buttonColor='black'>
+        {/* popup */}       
+        <Portal>
+          <Modal visible={modalOpen} 
+            dismissable={true}  
+            onDismiss={() => (setModalOpen(false))} 
+            contentContainerStyle={styles.modalBody}
+          >
+            <Text style={[globalStyles.title, {fontSize: 25}]}>Let's wrap up your day!</Text>
+            <Text style={globalStyles.subtitle}>How did you feel overall today?</Text>
+            <View style={styles.emotionList}>
+              <TouchableOpacity 
+                onPress={() => setSelectedEmotion('very_sad')}
+                style={selectedEmotion === 'very_sad' ? { opacity: 1 } : { opacity: 0.7 }}
+              >
+                <Image style={styles.emotionItem} source={require('../assets/emotions/very_sad.png')} />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={() => setSelectedEmotion('sad')}
+                style={selectedEmotion === 'sad' ? { opacity: 1 } : { opacity: 0.7 }}
+              >
+                <Image style={styles.emotionItem} source={require('../assets/emotions/sad.png')} />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={() => setSelectedEmotion('neutral')}
+                style={selectedEmotion === 'neutral' ? { opacity: 1 } : { opacity: 0.7 }}
+              >
+                <Image style={styles.emotionItem} source={require('../assets/emotions/neutral.png')} />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={() => setSelectedEmotion('happy')}
+                style={selectedEmotion === 'happy' ? { opacity: 1 } : { opacity: 0.7 }}
+              >
+                <Image style={styles.emotionItem} source={require('../assets/emotions/happy.png')} />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={() => setSelectedEmotion('very_happy')}
+                style={selectedEmotion === 'very_happy' ? { opacity: 1 } : { opacity: 0.7 }}
+              >
+                <Image style={styles.emotionItem} source={require('../assets/emotions/very_happy.png')} />
+              </TouchableOpacity>
+            </View>
+            <View style={[globalStyles.center, globalStyles.btnContainer, { bottom: 30}]} >
+              <Button mode="contained" 
+                onPress={handleFinish} 
+                disabled={selectedEmotion == null}
+                style={globalStyles.button} 
+                buttonColor='black'
+              >
                 <Text style={globalStyles.btnText}>Finish</Text>
               </Button>
             </View>
-            <View style={[globalStyles.center, globalStyles.btnContainer]}>
-              <TouchableOpacity
-                onPress={handleFinish}
-                style={[globalStyles.button, { opacity: selectedEmotion ? 1 : 0.5 }]}
-                disabled={selectedEmotion == null}
-              >
-                <Text style={globalStyles.btnText}>Finish</Text>
-              </TouchableOpacity>
-            </View>
-        </View>
-      </Modal>
-
-      {/* calendar */}
-      <View style={styles.picker}>
-            <View
-              style={[styles.itemRow, { paddingHorizontal: 8 }]}
-            >
-              {mydays.map((item, dateIndex) => {
-                const isActive = value.toDateString() === item.date.toDateString();
-                return (
-                  <TouchableWithoutFeedback
-                    key={dateIndex}
-                    onPress={() => handleCalendarTap(item.date)}>
-                    <View
+          </Modal>
+        </Portal>       
+       
+        {/* calendar */}
+        <View style={styles.picker}>
+          <View
+            style={[styles.itemRow, { paddingHorizontal: 8 }]}
+          >
+            {mydays.map((item, dateIndex) => {
+              const isActive = value.toDateString() === item.date.toDateString();
+              return (
+                <TouchableWithoutFeedback
+                  key={dateIndex}
+                  onPress={() => handleCalendarTap(item.date)}>
+                  <View
+                    style={[
+                      styles.item,
+                      isActive && {
+                        backgroundColor: 'black',
+                      },
+                    ]}>
+                    <Text
                       style={[
-                        styles.item,
+                        styles.itemWeekday,
                         isActive && {
-                          backgroundColor: 'black',
+                          color: colors.grey50,
                         },
                       ]}>
-                      <Text
-                        style={[
-                          styles.itemWeekday,
-                          isActive && {
-                            color: colors.grey50,
-                          },
-                        ]}>
-                        {item.weekday}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.itemDate,
-                          isActive && {
-                            color: colors.grey50,
-                          },
-                        ]}>
-                        {item.date.getDate()}
-                      </Text>
-                    </View>
-                  </TouchableWithoutFeedback>
-                );
-              })}
-            </View>
-      </View>
-
-      {/* header */}
-      { savedData ?
-        <View style={globalStyles.center}>  
-          <Text style={globalStyles.title}>Your day</Text>
-          <Text style={globalStyles.subtitle}>The goals you accomplished on {value.toDateString()}</Text>
+                      {item.weekday}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.itemDate,
+                        isActive && {
+                          color: colors.grey50,
+                        },
+                      ]}>
+                      {item.date.getDate()}
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback>
+              );
+            })}
+          </View>
         </View>
-        :
-        <View style={globalStyles.center}>
-          <Text style={globalStyles.title}>How was your day?</Text>
-          <Text style={globalStyles.subtitle}>What goals are you satisfied with for today?</Text>
-        </View>
-       }
-
-      {/*category cards*/}      
-      <FlatList
-        style = {{flex: 1}}
-        data={Object.entries(catGoals)}
-        horizontal= {false}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => <Card category={item[0]} goals={item[1]} checkboxStates={checkboxStates || []} onToggle={(index) => handleCheckboxToggle(index)} savedData={savedData}/>}
-        ListFooterComponent={<View style={{ height: 160 }}/>}
-        // numColumns={2}
-      />
-
-      {/* button */}
-      { !savedData && 
-        <View style={[globalStyles.center, globalStyles.btnContainer, {bottom: 130}]} >
-          <Button mode="contained" onPress={handleSave} style={globalStyles.button} labelStyle={globalStyles.btnText} buttonColor='black'>
-            Save
-          </Button>
-        </View>
-      }
       
-      {/* { !savedData && 
-        <View style={[globalStyles.center, globalStyles.btnContainer]}>
-          <TouchableOpacity
-            onPress={handleSave}
-            style={globalStyles.button}
-          >
-            <Text style={globalStyles.btnText}>Save</Text>
-          </TouchableOpacity>
-        </View>
-      } */}
+        {/* header */}
+        { savedData ?
+          <View style={globalStyles.center}>  
+            <Text style={globalStyles.title}>Your day</Text>
+            <Text style={globalStyles.subtitle}>The goals you accomplished on {value.toDateString()}</Text>
+          </View>
+          :
+          <View style={globalStyles.center}>
+            <Text style={globalStyles.title}>How was your day?</Text>
+            <Text style={globalStyles.subtitle}>What goals are you satisfied with for today?</Text>
+          </View>
+        }
 
-    </View>
+        {/*category cards*/}      
+        <FlatList
+          style = {{flex: 1}}
+          data={Object.entries(catGoals)}
+          horizontal= {false}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => <Card category={item[0]} goals={item[1]} checkboxStates={checkboxStates || []} onToggle={(index) => handleCheckboxToggle(index)} savedData={savedData}/>}
+          ListFooterComponent={<View style={{ height: 160 }}/>}
+          // numColumns={2}
+        />
+
+        {/* button */}
+        { !savedData && 
+          <View style={[globalStyles.center, globalStyles.btnContainer, {bottom: 120}]} >
+            <Button mode="contained" onPress={handleSave} style={globalStyles.button} buttonColor='black'>
+              <Text style={globalStyles.btnText}>Save</Text>
+            </Button>
+          </View>
+        }      
+      </View>
+    </PaperProvider>
   )
 }
 
@@ -332,15 +315,14 @@ const styles = StyleSheet.create({
   modalBody: {
     backgroundColor: 'white',
     alignItems: 'center',
-    marginHorizontal: 20,
+    marginHorizontal: 10,
     paddingTop: 30,
     borderRadius: 20,
     elevation: 20,
-    marginTop: '50%'
   },
   emotionList: {
     flexDirection: 'row',
-    marginBottom: 130 //////////////////////////////////// WHY???
+    marginBottom: 130 ///////////// WHY???
   },
   emotionItem: {
     width: 46, 

@@ -45,13 +45,13 @@ const globalStyles = StyleSheet.create({
     },
     button: {
         borderRadius: 50,
+        width: 150
     },
     btnText: {
-        fontSize: 20,
+        fontSize: 18,
         color: colors.grey50,
         paddingHorizontal: 30, 
-        paddingVertical: 14,
-        // lineHeight: 30
+        lineHeight: 30
     },
 
     // input
