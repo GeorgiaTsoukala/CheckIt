@@ -1,16 +1,15 @@
-import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import globalStyles from '../globalStyles'
+import globalStyles, { colors } from '../globalStyles'
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { auth, datab } from '../firebase';
 import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryLegend, VictoryPie, VictoryScatter, VictoryTheme } from "victory-native";
-import { Divider, RadioButton } from 'react-native-paper';
+import { Divider, SegmentedButtons } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
 const VisualizationsScreen = () => {
   const [viewModeBar, setViewModeBar] = useState('days') // For Bar plot, initially set to 'days'
-  const [viewModeScatter, setViewModeScatter] = useState('days') // For Scatter plot, initially set to 'days'
   const [goals, setGoals] = useState([])
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -262,19 +261,7 @@ const VisualizationsScreen = () => {
     updateBarData();
   }, [viewModeBar]);
 
-
-  const sampleData = [
-    { x: "Cats", y: 35 },
-    { x: "Dogs", y: 40 },
-    { x: "Birds", y: 55 }
-  ];
-
   const pieColorScale = ["tomato", "orange", "gold"];
-  const pieDatathis = [
-    { x: "A", y: 50 },
-    { x: "B", y: 30 },
-    { x: "C", y: 20 },
-  ];
 
   return (
     <View style = {globalStyles.body}>
@@ -284,22 +271,10 @@ const VisualizationsScreen = () => {
 
       {/* diagrams */}
       <ScrollView>
-
         {/* first diagram */}
-        <View>
-          <View style={styles.toggleContainer}>
-            <Text style={{ fontSize: 18, marginRight: 25}}>Most productive</Text>
-            <RadioButton.Group onValueChange={value => setViewModeBar(value)} value={viewModeBar}>
-              <View style={{ flexDirection: 'row'}}>
-
-                <Text style={{fontSize: 18, alignSelf: 'center'}}>Days</Text>
-                <RadioButton value="days" color="#63086B"/>
-
-                <Text style={{fontSize: 18, alignSelf: 'center', marginLeft: 5}}>Months</Text>
-                <RadioButton value="months" color="#63086B"/>
-
-              </View>
-            </RadioButton.Group>
+        <View>          
+          <View style={globalStyles.center}>  
+            <Text style={styles.plotTitle}>{viewModeBar === 'days' ? "Daily Accomplished Goals Percentage" : "Monthly Accomplished Goals Percentage"}</Text>
           </View>
           {loading ?
             <View style={{flex: 1, justifyContent:'center'}}>
@@ -312,23 +287,16 @@ const VisualizationsScreen = () => {
                 // prevent it from overlapping the axis
                 domainPadding={15}
                 theme={VictoryTheme.material}
-                padding={{ top: 10, bottom: 50, left: 50, right: 50 }} 
+                padding={{ top: 10, bottom: 40, left: 50, right: 40 }} 
                 height={300}
-              >
-                {/* <VictoryLabel
-                  text={viewModeBar === 'days' ? "Daily Accomplished Goals Percentage" : "Monthly Accomplished Goals Percentage"}
-                  x={Dimensions.get('window').width / 2} // Adjust this value to center the title horizontally
-                  y={30} // Adjust this value to position the title vertically
-                  textAnchor="middle"
-                  style={{ fontSize: 18, fill: "#333" }}
-                /> */} // Let's put the titles outside of the graphs so that the title appears above the activity indicator.
+              >                
                 <VictoryAxis
                   // tickValues specifies both the number of ticks and where
                   // they are placed on the axis
                   tickValues={viewModeBar === 'days' ? [7, 6, 5, 4, 3, 2, 1] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} 
                   tickFormat={viewModeBar === 'days' ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]}
                   style={{
-                    tickLabels: { fontSize: 12, color: '#86929e' },
+                    tickLabels: { fontSize: 12, fill: colors.grey600 },
                     // axis: { stroke: "transparent" }, // Hide the axis line
                   }}
                 />
@@ -337,7 +305,7 @@ const VisualizationsScreen = () => {
                   // tickFormat specifies how ticks should be displayed
                   tickFormat={(x) => (`${x}%`)}
                   style={{
-                    tickLabels: { fontSize: 12, color: '#86929e' },
+                    tickLabels: { fontSize: 12, fill: colors.grey600 },
                     // axis: { stroke: "transparent" }, // Hide the axis line
                   }}
                 />
@@ -346,15 +314,24 @@ const VisualizationsScreen = () => {
                   x="tag"
                   y="value"
                   barWidth={16}
-                  // cornerRadius='8' !!!DANGER!!!
                   style={{
                     data: { fill: '#A2B1F7' },
                   }}
                 />
-
               </VictoryChart>
-
-            </View>
+              <View style={{ alignItems: 'center', marginBottom:20 }}>
+                <SegmentedButtons
+                  theme={{colors: {secondaryContainer:'#A2B1F7'}}}
+                  style={{ width: 200}}
+                  onValueChange={value => setViewModeBar(value)} 
+                  value={viewModeBar}
+                  buttons={[
+                    {value: 'days', label: 'Days'},
+                    {value: 'months', label: 'Months'}
+                  ]}  
+                />
+              </View>
+            </View>            
           )}
         </View>
 
@@ -362,20 +339,9 @@ const VisualizationsScreen = () => {
 
         {/* second diagram */}
         <View>
-          {/* <View style={styles.toggleContainer}>
-            <Text style={{ fontSize: 18, marginRight: 25}}>Emotions scatter</Text>
-            <RadioButton.Group onValueChange={value => setViewModeScatter(value)} value={viewModeScatter}>
-              <View style={{ flexDirection: 'row'}}>
-
-                <Text style={{fontSize: 18, alignSelf: 'center'}}>Days</Text>
-                <RadioButton value="days" color="#63086B"/>
-
-                <Text style={{fontSize: 18, alignSelf: 'center', marginLeft: 5}}>Months</Text>
-                <RadioButton value="months" color="#63086B"/>
-
-              </View>
-            </RadioButton.Group>
-          </View> */}
+          <View style={globalStyles.center}>  
+            <Text style={styles.plotTitle}>Relation of Emotions and Accomplished Goals</Text>
+          </View>
           {loading ?
             <View style={{flex: 1, justifyContent:'center'}}>
               <ActivityIndicator size="large" color="#63086B" />
@@ -387,23 +353,16 @@ const VisualizationsScreen = () => {
                 // prevent it from overlapping the axis
                 domainPadding={15}
                 theme={VictoryTheme.material}
-                // padding={{ top: 0, bottom: 50, left: 70, right: 50 }} 
+                padding={{ top: 0, bottom: 50, left: 50, right: 40 }} 
 
-              >
-                <VictoryLabel
-                  text={viewModeScatter === 'days' ? "Relation of Emotions and Accomplished Goals" : "Monthly"}
-                  x={Dimensions.get('window').width / 2} // Adjust this value to center the title horizontally
-                  y={30} // Adjust this value to position the title vertically
-                  textAnchor="middle"
-                  style={{ fontSize: 18, fill: "#333" }}
-              />
+              >                
                 <VictoryAxis
                   // tickValues specifies both the number of ticks and where
                   // they are placed on the axis
                   tickValues={[1, 2, 3, 4, 5]} 
                   tickFormat={["very sad", "sad", "neutral", "happy", "very happy"]}
                   style={{
-                    tickLabels: { fontSize: 12, color: '#86929e' },
+                    tickLabels: { fontSize: 12, fill: colors.grey600 },
                     // axis: { stroke: "transparent" }, // Hide the axis line
                   }}
                 />
@@ -418,7 +377,7 @@ const VisualizationsScreen = () => {
                     }
                   }} //(`${x}%`)
                   style={{
-                    tickLabels: { fontSize: 12, color: '#86929e' },
+                    tickLabels: { fontSize: 12, fill: colors.grey600 },
                     // axis: { stroke: "transparent" }, // Hide the axis line
                   }}
                 />
@@ -442,50 +401,47 @@ const VisualizationsScreen = () => {
 
         {/* third diagram */}
         <View>
+          <View style={globalStyles.center}>  
+            <Text style={styles.plotTitle}>Pie title</Text>
+          </View>
          {loading ?
             <View style={{flex: 1, justifyContent:'center'}}>
               <ActivityIndicator size="large" color="#63086B" />
             </View>
           : (
-            <View style={styles.container}>
+            <View style={{flex: 1, alignItems: 'center', justifyContent:'center'}}>
               <VictoryPie
-                colorScale={["tomato", "orange", "gold", "cyan", "navy"]}
+                // padAngle={({ datum }) => datum.y}
+                colorScale={pieColorScale}
                 data={pieData}
+                labels={() => ''}
+                padding={{top:10, left:20, right:20, bottom:10}}
+                style={{
+                  data: {
+                    stroke: colors.grey50, strokeWidth: 3
+                  }
+                }}
+                // Other props for your VictoryPie component
+              />
+              <VictoryLegend
+                orientation="horizontal" // Display the legend horizontally
+                itemsPerRow={3}
+                gutter={20} // Add spacing between legend items
+                height={190}
+                style={{
+                  labels: {
+                    fill: colors.grey600
+                  }
+                }}
+                data={pieData.map(({ x }, index) => ({
+                  name: x,
+                  symbol: { fill: pieColorScale[index % pieColorScale.length] }, // Use color from color scale
+                }))}
               />
             </View>
           )}
-        </View>
-
-        <View style={{flex: 1, alignItems: 'center', justifyContent:'center'}}>
-          <VictoryPie
-            // padAngle={({ datum }) => datum.y}
-            colorScale={pieColorScale}
-            data={pieData}
-            labels={() => ''}
-            style={{
-              data: {
-                fillOpacity: 0.9, stroke: "#ffffff", strokeWidth: 3
-              }
-            }}
-            // Other props for your VictoryPie component
-          />
-          <VictoryLegend
-            // x={Dimensions.get('window').width / 2} // Adjust the x position of the legend
-            // y={0} // Adjust the y position of the legend
-            orientation="horizontal" // Display the legend horizontally
-            itemsPerRow={3}
-            gutter={20} // Add spacing between legend items
-            data={pieData.map(({ x }, index) => ({
-              name: x,
-              symbol: { fill: pieColorScale[index % pieColorScale.length] }, // Use color from color scale
-            }))}
-          />
-        </View>
-
-        <View style={{height: 100}}></View>
-      
+        </View>              
       </ScrollView>
-
     </View>
   )
 }
@@ -498,6 +454,14 @@ const styles = StyleSheet.create({
     // flex: 1,
     // justifyContent: "center",
     // alignItems: "center",
+  },
+  plotTitle: {
+    width: '90%',
+    marginTop: 20,
+    marginBottom: 10,
+    fontSize: 18,
+    color: 'black',
+    textAlign: 'center', 
   },
   toggleContainer: {
     marginTop: 20,

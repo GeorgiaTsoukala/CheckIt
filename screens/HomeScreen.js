@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { signOut } from 'firebase/auth';
 import { auth, datab } from '../firebase';
@@ -145,6 +145,7 @@ const HomeScreen = () => {
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom : 10}}>
             {Object.keys(catGoals).map((key) => (
               <Chip
+                theme={{colors: {secondaryContainer: colors.health}}}
                 key={key}
                 style={{ margin: 4 }}
                 selected={selectedCategory === key}
