@@ -37,6 +37,7 @@ const BottomNavigation = () => {
               />
               <Text
                 style={{
+                  fontSize: 16,
                   alignSelf: "center",
                   color: focused ? "red" : "black",
                 }}
@@ -64,6 +65,7 @@ const BottomNavigation = () => {
               />
               <Text
                 style={{
+                  fontSize: 16,
                   alignSelf: "center",
                   color: focused ? "red" : "black",
                 }}
@@ -91,6 +93,7 @@ const BottomNavigation = () => {
               />
               <Text
                 style={{
+                  fontSize: 16,
                   alignSelf: "center",
                   color: focused ? "red" : "black",
                 }}
@@ -114,8 +117,8 @@ const styles = StyleSheet.create({
     left: 16,
     right: 16,
     // elevation: 0,
-    borderRadius: 15,
+    borderRadius: 16,
     backgroundColor: '#ffffff',
-    height: 60,
+    height: 90,
   }
 })

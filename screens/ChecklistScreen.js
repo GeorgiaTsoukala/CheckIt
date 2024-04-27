@@ -292,20 +292,20 @@ const ChecklistScreen = () => {
 
       {/*category cards*/}      
       <FlatList
-        style = {{flex: 1, marginBottom: '25%'}}
+        style = {{flex: 1}}
         data={Object.entries(catGoals)}
         horizontal= {false}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => <Card category={item[0]} goals={item[1]} checkboxStates={checkboxStates || []} onToggle={(index) => handleCheckboxToggle(index)} savedData={savedData}/>}
 
-        numColumns={2}
+        // numColumns={2}
       />
 
       {/* button */}
       { !savedData && 
-        <View style={[globalStyles.center, globalStyles.btnContainer]} >
-          <Button mode="contained" onPress={handleSave} style={globalStyles.button} buttonColor='black'>
-            <Text style={globalStyles.btnText}>Save</Text>
+        <View style={[globalStyles.center, globalStyles.btnContainer, {bottom: 130}]} >
+          <Button mode="contained" onPress={handleSave} style={globalStyles.button} labelStyle={globalStyles.btnText} buttonColor='black'>
+            Save
           </Button>
         </View>
       }

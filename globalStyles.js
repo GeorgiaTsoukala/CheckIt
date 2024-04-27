@@ -30,8 +30,8 @@ const globalStyles = StyleSheet.create({
     },
     subtitle: {
         width: '70%',
-        marginTop: 25,
-        marginBottom: 50,
+        marginTop: 12,
+        marginBottom: 40,
         fontSize: 18,
         color: colors.grey600,
         textAlign: 'center', 
@@ -41,24 +41,23 @@ const globalStyles = StyleSheet.create({
     btnContainer: {
         position: 'absolute', 
         bottom: 70, 
-        width: '100%'
+        width: '100%',
     },
     button: {
-        width: '40%',
-        // backgroundColor: '#D7B4EC',
-        // padding: 15,
-        // borderRadius: 50,
-        // alignItems: 'center',
+        borderRadius: 50,
     },
     btnText: {
-        fontSize: 18,
+        fontSize: 20,
         color: colors.grey50,
-      },
+        paddingHorizontal: 30, 
+        paddingVertical: 14,
+        // lineHeight: 30
+    },
 
     // input
     inputContainer: {
         width: "80%",
-      },
+    },
     input: {
         backgroundColor: "white",
         paddingHorizontal: 15,

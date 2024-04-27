@@ -43,20 +43,20 @@ export default Card
 const styles = StyleSheet.create({
     // card
     cardContainer: cardIsActive => ({ 
-        maxWidth: width/2 -10 ,
         flex: 1, 
         flexDirection: 'column', 
-        marginVertical: 5, 
-        marginHorizontal: 5, 
-        backgroundColor: cardIsActive ? '#A2B1F760' : '#d3d3d3', 
-        borderRadius: 20,
+        marginBottom: 16,
+        marginHorizontal: 20, 
+        borderRadius: 16,
+        backgroundColor: cardIsActive ? '#ffffff' : '#d3d3d3', 
         opacity: cardIsActive ? 1 : 0.5,
-        padding: 16 
+        padding: 24 
     }),
+
     cardTitle: {
         fontWeight: 'bold',
         fontSize: 20,
-        marginBottom: 5
+        marginBottom: 20
     },
 
     // goals
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     },
     goalTxt: {
         fontSize: 16,
-        marginLeft: 10,
+        marginLeft: 20,
         flex: 1,
         flexWrap: 'wrap',
     },
