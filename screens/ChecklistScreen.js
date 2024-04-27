@@ -297,7 +297,7 @@ const ChecklistScreen = () => {
         horizontal= {false}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => <Card category={item[0]} goals={item[1]} checkboxStates={checkboxStates || []} onToggle={(index) => handleCheckboxToggle(index)} savedData={savedData}/>}
-
+        ListFooterComponent={<View style={{ height: 160 }}/>}
         // numColumns={2}
       />
 

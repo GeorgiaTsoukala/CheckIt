@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dimensions, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
+import { colors } from '../globalStyles';
 
 const { width } = Dimensions.get('window');
 
@@ -23,12 +24,21 @@ const Card = ({ category, goals, checkboxStates, onToggle, savedData }) => {
               >
                 {/* Display checkbox based on state */}
                 {checkboxStates[index] ?
-                  <MaterialIcons name="check-box" size={28} color="#8E2EA6" />
+                  <View style={{backgroundColor: colors.health, borderRadius: 30, padding: 8}}>
+                    <FontAwesome6 name="check" size={15} color="black" />
+                  </View>
+                  // <MaterialIcons name="check-box" size={28} color="#8E2EA6" />
                   :
-                  <MaterialIcons name="check-box-outline-blank" size={28} color="#8E2EA6" />
+                  <View style={{backgroundColor: colors.grey50, borderRadius: 30, padding: 8}}>
+                    <FontAwesome6 name="check" size={15} color='#727272' />
+                  </View>
+                  // <MaterialIcons name="check-box-outline-blank" size={28} color="#8E2EA6" />
                 }
               </TouchableOpacity>
-              : <MaterialIcons name="check-box-outline-blank" size={28} color="grey" />
+              : <View style={{backgroundColor: '#ffffff', borderRadius: 30, padding: 8}}>
+                  <FontAwesome6 name="check" size={15} color="#727272" />
+                </View>
+              // <MaterialIcons name="check-box-outline-blank" size={28} color="grey" />
             } 
               <Text style={styles.goalTxt}>{goal}</Text>
             </View>
@@ -63,7 +73,7 @@ const styles = StyleSheet.create({
     goalContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 5,
+        marginVertical: 6,
     },
     goalTxt: {
         fontSize: 16,
