@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native'
 import { doc, setDoc } from 'firebase/firestore'
 import { auth, datab } from '../../firebase'
 import globalStyles from '../../globalStyles'
+import { Button } from 'react-native-paper'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const RegisterScreen = () => {
   const[email, setEmail] = useState('')
@@ -49,47 +51,46 @@ const RegisterScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior="padding"
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView 
+        style={styles.innerContainer}
+        behavior="padding"
       >
-      <View style={globalStyles.center}>
-        <Text style={globalStyles.title}>Welcome</Text>
-        <Text style={globalStyles.subtitle}>Create a new account</Text>
-      </View>
-      <View style={globalStyles.inputContainer}> 
-        <TextInput 
-          placeholder="Name"
-          value={name}
-          onChangeText={text => setName(text)}
-          style={globalStyles.input}
-          >
-        </TextInput>
-        <TextInput 
-          placeholder="Email"
-          value={email}
-          onChangeText={text => setEmail(text)}
-          style={globalStyles.input}
-          >
-        </TextInput>
-        <TextInput 
-          placeholder="Password"
-          value={password}
-          onChangeText={text => setPassword(text)}
-          style={globalStyles.input}
-          secureTextEntry
-          >
-        </TextInput>
-      </View>
-      <View style={styles.buttonContainer}>        
-        <TouchableOpacity
-         onPress={handleRegister}
-         style={[styles.button, styles.buttonOutline]}
-        >
-          <Text style={styles.buttonOutlineText}>SIGN UP</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+        <View style={globalStyles.center}>
+          <Text style={globalStyles.title}>Welcome</Text>
+          <Text style={globalStyles.subtitle}>Create a new account</Text>
+        </View>
+        <View style={globalStyles.inputContainer}> 
+          <TextInput 
+            placeholder="Name"
+            value={name}
+            onChangeText={text => setName(text)}
+            style={globalStyles.input}
+            >
+          </TextInput>
+          <TextInput 
+            placeholder="Email"
+            value={email}
+            onChangeText={text => setEmail(text)}
+            style={globalStyles.input}
+            >
+          </TextInput>
+          <TextInput 
+            placeholder="Password"
+            value={password}
+            onChangeText={text => setPassword(text)}
+            style={globalStyles.input}
+            secureTextEntry
+            >
+          </TextInput>
+        </View>
+        <View style={[globalStyles.btnContainer, {position:'relative', bottom: 0, marginTop:50}]}>
+          <Button mode="contained" onPress={handleRegister} style={globalStyles.button} buttonColor='black'>
+            <Text style={globalStyles.btnText}>SIGN UP</Text>
+          </Button>
+        </View>
+      </KeyboardAvoidingView>
+      </SafeAreaView>
   )
 }
 
@@ -98,36 +99,10 @@ export default RegisterScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  innerContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },  
-  buttonContainer: {
-    width: "60%",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 50,
-  },
-  button: {
-    width: "100%",
-    backgroundColor: "#267777",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 15,
-  },
-  buttonOutline: {
-    backgroundColor: "white",
-    marginTop: 5,
-    borderColor: "#aa7dc6",
-    borderWidth: 2,
-  },
-  buttonOutlineText: {
-    color: "#aa7dc6",
-    fontWeight: "700",
-    fontSize: 15,
   },
 })

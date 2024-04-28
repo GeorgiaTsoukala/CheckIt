@@ -53,6 +53,7 @@ const globalStyles = StyleSheet.create({
     // button    
     btnContainer: {
         position: 'absolute', 
+        alignItems: 'center',
         bottom: 70, 
         width: '100%',
     },
@@ -73,10 +74,10 @@ const globalStyles = StyleSheet.create({
     },
     input: {
         backgroundColor: "white",
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderRadius: 10,
-        marginTop: 5,
+        paddingHorizontal: 25,
+        paddingVertical: 15,
+        borderRadius: 50,
+        marginTop: 15,
       },
 });
 

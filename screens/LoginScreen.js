@@ -1,24 +1,22 @@
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../firebase'
-import { useNavigation } from '@react-navigation/native'
-import globalStyles from '../globalStyles'
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, View, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
+import { useNavigation } from '@react-navigation/native';
+import globalStyles from '../globalStyles';
+import { Button } from 'react-native-paper';
 
 const LoginScreen = () => {
-  const[email, setEmail] = useState('')
-  const[password, setPassword] = useState('')
-
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigation = useNavigation();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        //the user is already registered, go to home page   
-        //remove existing screens from the stack, add BottomNavigation to it and navigate there
         navigation.reset({
-            index: 0,
-            routes: [{ name: 'BottomNavigation' }]
+          index: 0,
+          routes: [{ name: 'BottomNavigation' }]
         });
       }
     });
@@ -39,67 +37,49 @@ const LoginScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior="padding"
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView 
+        style={styles.innerContainer}
+        behavior="padding"
       >
-      <View style={globalStyles.center}>
-        <Text style={globalStyles.title}>Welcome Back</Text>
-        <Text style={globalStyles.subtitle}>Log in to your account</Text>
-      </View>
-      <View style={globalStyles.inputContainer}> 
-        <TextInput 
-          placeholder="Email"
-          value={email}
-          onChangeText={text => setEmail(text)}
-          style={globalStyles.input}
-          >
-        </TextInput>
-        <TextInput 
-          placeholder="Password"
-          value={password}
-          onChangeText={text => setPassword(text)}
-          style={globalStyles.input}
-          secureTextEntry
-          >
-        </TextInput>
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-         onPress={handleLogin}
-         style={styles.button}
-        >
-          <Text style={styles.buttonText}>LOG IN</Text>
-        </TouchableOpacity>        
-      </View>
-    </KeyboardAvoidingView>
-  )
-}
+        <View style={globalStyles.center}>
+          <Text style={globalStyles.title}>Welcome Back</Text>
+          <Text style={globalStyles.subtitle}>Log in to your account</Text>
+        </View>
+        <View style={globalStyles.inputContainer}> 
+          <TextInput 
+            placeholder="Email"
+            value={email}
+            onChangeText={text => setEmail(text)}
+            style={globalStyles.input}
+          />
+          <TextInput 
+            placeholder="Password"
+            value={password}
+            onChangeText={text => setPassword(text)}
+            style={globalStyles.input}
+            secureTextEntry
+          />
+        </View>
+        <View style={[globalStyles.btnContainer, {position:'relative', bottom: 0, marginTop:50}]}>
+          <Button mode="contained" onPress={handleLogin} style={globalStyles.button} buttonColor='black'>
+            <Text style={globalStyles.btnText}>LOG IN</Text>
+          </Button>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
 
-export default LoginScreen
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  innerContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },  
-  buttonContainer: {
-    width: "60%",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 50,
   },
-  button: {
-    width: "100%",
-    backgroundColor: "#aa7dc6",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 15,
-  }
-})
+});
