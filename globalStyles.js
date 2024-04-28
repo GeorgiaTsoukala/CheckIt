@@ -1,4 +1,5 @@
-import { StyleSheet } from 'react-native';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { StyleSheet, View } from 'react-native';
 
 // Define the color palette
 export const colors = {
@@ -9,7 +10,19 @@ export const colors = {
     grey600: '#727272',
     grey800: '#4B4B4B',
     health: '#ACF9AF',
+    productivity: '#FFEB7F',
+    intellect: '#D7A5EF',
+    finance: '#90E9FC',
+    creativity: '#FDA5C5'
   };
+
+export const MyCheckbox = ({myBgColor, myColor}) => {
+    return (
+        <View style={{backgroundColor: myBgColor, borderRadius: 45, padding: 8}}>
+            <FontAwesome6 name="check" size={15} color={myColor} />
+        </View>
+    )
+}
 
 const globalStyles = StyleSheet.create({
     // body

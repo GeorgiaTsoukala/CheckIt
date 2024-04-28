@@ -304,3 +304,32 @@ const styles = StyleSheet.create({
   },
 })
 
+          // <View style={{height: 24}}>
+            {/* <Icon source="lightning-bolt"
+              // color={MD3Colors.error50}
+              // size={20}
+            /> */}
+            {/* <Image source={require('../../assets/categories/icon.png')} style={{height: '50%'}}/> */}
+            {/* <SvgUri
+              width="100"
+              height="100"
+              source={require('../../assets/categories/icon.svg')} 
+              // uri="../../assets/categories/icon.svg"
+            /> */}
+          // </View>
+          {/* <SvgUri
+            width="100%"
+            height="100%"
+            uri={require('C:/Users/frena/react_projects/check-it-app/CheckIt-MobileApp/assets/categories/icon.svg')}
+          /> */}
+          {/* <SvgXml xml={MySVG} width="100" height="100" /> */}
+
+          //  <MyComponentCheck mycolor={'black'}></MyComponentCheck>
+
+          // export const MyComponentCheck = ({myBgColor, mycolor}) => {
+          //     return (
+          //         <View style={{backgroundColor: myBgColor, borderRadius: 45, padding: 8}}>
+          //             <FontAwesome6 name="check" size={15} color={mycolor} />
+          //         </View>
+          //     )
+          // }

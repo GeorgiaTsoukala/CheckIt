@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, View, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { collection, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
 import { auth, datab } from '../../firebase';
-import globalStyles from '../../globalStyles';
-import { Button } from 'react-native-paper';
+import globalStyles, { MyCheckbox, colors } from '../../globalStyles';
+import { Button} from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
  
 const ChecklistScreen = () => {
   const navigation = useNavigation();
@@ -60,6 +61,9 @@ const ChecklistScreen = () => {
     }
   };
 
+  const iconsArray = ['lightbulb-on-outline', 'heart-plus-outline', 'hand-coin-outline', 'drama-masks', 'lightbulb-on-outline'];
+  const checkColors = [colors.productivity, colors.health, colors.finance, colors.intellect, colors.creativity]
+
   return (
     <View style={globalStyles.body}>
       <View style={globalStyles.center}>
@@ -70,13 +74,14 @@ const ChecklistScreen = () => {
       {categories.map((category, index) => (
         <View key={index} style={styles.categoryContainer}>
           <View style={styles.categoryTxtContainer}>
+            <MaterialCommunityIcons name={iconsArray[index]} size={24} color="black" />
             <Text style={styles.categoryTxt}>{category.name}</Text>
           </View>
-          <TouchableOpacity
-            style={[styles.radioButton, category.isChecked ? { borderColor: '#8E2EA6' } : { borderColor: '#D0B8E6' }]}
-            onPress={() => {category.name !== 'Health' && handleCategoryToggle(index)}}
-          >
-            {category.isChecked && <View style={styles.radioButtonInner} />}
+          <TouchableOpacity onPress={() => {category.name !== 'Health' && handleCategoryToggle(index)}}>
+            {category.isChecked ? 
+              <MyCheckbox myBgColor={checkColors[index]} myColor={'black'}></MyCheckbox>
+              : <MyCheckbox myBgColor={colors.grey50} myColor={colors.grey600}></MyCheckbox>
+            }
           </TouchableOpacity>
         </View>
       ))}
@@ -95,36 +100,22 @@ export default ChecklistScreen;
 
 const styles = StyleSheet.create({
   categoryTxt: {
-    fontSize: 32,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '500',
+    marginLeft: 16
   },
   categoryTxtContainer: {
-    width: '70%',
-    backgroundColor: '#D0B8E6',
-    paddingVertical: 16,
-    paddingLeft: 24,
-    paddingRight: 48,
-    borderTopRightRadius: 50,
-    borderBottomRightRadius: 50,
+    flexDirection: 'row',
   },
   categoryContainer: {
+    paddingHorizontal: 24,
+    paddingVertical: 20,
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: 'white',
+    marginBottom: 8,
+    marginHorizontal: 20,
+    borderRadius: 16,
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  radioButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 40,
-  },
-  radioButtonInner: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#8E2EA6',
   },
 });
