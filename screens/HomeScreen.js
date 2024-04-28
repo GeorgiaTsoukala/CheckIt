@@ -6,22 +6,24 @@ import { auth, datab } from '../firebase';
 import { MaterialIcons } from '@expo/vector-icons';
 import globalStyles, { colors } from '../globalStyles';
 import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryStack} from "victory-native";
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
-import { Card, Chip, MD3Colors, ProgressBar, Title } from 'react-native-paper';
+import { collection, doc, getDoc, getDocs, orderBy, query, where } from 'firebase/firestore';
+import { Card, Chip, Divider, MD3Colors, ProgressBar, Title } from 'react-native-paper';
 import moment from 'moment';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
 
   const [name, setName] = useState(""); // user's name
-  const [catGoals, setCatGoals] = useState({});  // store the selected categories and their goals
-  const [goalProgress, setGoalProgress] = useState({}); // store the progress data for each goal
+  const [catGoals, setCatGoals] = useState({});  // stores the selected categories and their goals
+  const [goalProgress, setGoalProgress] = useState({}); // stores the progress data for each goal
   const [selectedCategory, setSelectedCategory] = useState(null); //selected category from Chip to be displayed
+  const [streak, setStreak] = useState(0); // holds the streak information
 
   useEffect(() => {
     updateScreen();
     fetchCatGoals(); 
     getCardData();
+    getStreak();
   }, []);
 
   const fetchCatGoals = async () => {
@@ -115,6 +117,38 @@ const HomeScreen = () => {
     
   }
 
+  const getStreak = async () => {
+    try {
+      const dailyDataRef = collection(datab, "users", auth.currentUser.uid, "dailydata");
+      const q = query(
+        dailyDataRef,
+        orderBy('timestamp', 'asc') // ensure the data is ordered chronologically
+      );
+  
+      const querySnapshot = await getDocs(q);
+      let currentStreak = 0;
+      let previousDate = null;
+  
+      querySnapshot.forEach((doc) => {
+        const date = moment(doc.data().timestamp.toDate()).format('YYYY-MM-DD');
+  
+        // If the previous date is null or the consecutive date, increment the streak
+        if (!previousDate || moment(previousDate).add(1, 'day').isSame(date)) {
+          currentStreak++;
+        } else {
+          // If the streak is broken, reset the streak count
+          currentStreak = 1;
+        }
+  
+        previousDate = date;
+      });
+  
+      setStreak(currentStreak);
+    } catch (error) {
+      console.error('Error fetching streak:', error);
+    }
+  };
+
   // Toggles the selection state of a category
   const handleChipPress = (category) => {
     setSelectedCategory((prevCategory) => (prevCategory === category ? null : category));
@@ -181,65 +215,21 @@ const HomeScreen = () => {
             ))}
         </ScrollView>
 
-        {/* graph */}
-        {/* <Text style={globalStyles.subtitle}>The graph goes here</Text> */}
-        {/* <VictoryChart
-            height={200}
-            domainPadding={15}
-            padding={{left: 70, top: 50, bottom: 40, right: 20}}
-          >
-            <VictoryLabel
-              text={"Strike of your last 14 days"}
-              x={Dimensions.get('window').width / 2} // Adjust this value to center the title horizontally
-              y={30} // Adjust this value to position the title vertically
-              textAnchor="middle"
-              // style={{ fontSize: 18, fill: "#333" }}
+        {/* strike */}
+        {selectedCategory && (
+          <Card mode="contained" style={styles.strikeCard}>
+            <Card.Title
+              title="Your current streak"
+              subtitle="Keep it up!"
+              titleStyle={{ color: colors.grey400, fontSize: 14, fontWeight: 'normal' }}
+              subtitleStyle={{ color: 'black', fontSize: 14, fontWeight: 'bold' }}
             />
-            <VictoryAxis
-              dependentAxis
-              tickValues={ [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]} 
-            />
-            <VictoryStack
-              horizontal
-              // height={150}
-              colorScale={["grey", "green"]}
-            >
-              <VictoryBar
-                data={[
-                  {x: 'Eating\nhealthy', y: 0},
-                  {x: 'Sleeping\nenough', y: 2},
-                  {x: 'Exercise', y: 1}
-                ]}
-                barWidth={30}
-                // barRatio={1.0} 
-              />
-              <VictoryBar
-                data={[
-                  {x: 'Eating\nhealthy', y: 1},
-                  {x: 'Sleeping\nenough', y: 1},
-                  {x: 'Exercise', y: 4}
-                ]}
-                barWidth={30}
-              />
-              <VictoryBar
-                data={[
-                  {x: 'Eating\nhealthy', y: 3},
-                  {x: 'Sleeping\nenough', y: 1},
-                  {x: 'Exercise', y: 3}
-                ]}
-                barWidth={30}
-              />
-               <VictoryBar
-                data={[
-                  {x: 'Eating\nhealthy', y: 2},
-                  {x: 'Sleeping\nenough', y: 1},
-                  {x: 'Exercise', y: 0}
-                ]}
-                barWidth={30}
-              />
-            </VictoryStack>
-            <VictoryAxis/>
-          </VictoryChart> */}
+            <Card.Content style={styles.cardContent}>
+              <Text style={styles.progressText}>{streak}</Text>              
+            </Card.Content>           
+          </Card>
+          
+        )}
 
       </View>      
     </View>
@@ -269,54 +259,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'right',
   },
-  buttonContainer: {
-    marginTop: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    width: '100%'
-  },
-  button: {
-    backgroundColor: '#8E2EA6',
-    paddingVertical: 3,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 2,
-    width: '25%',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 10,
-    fontWeight: 'light',
-  },
-  activeButton: {
-    backgroundColor: '#FFFFFF',
-  },
-  activeButtonText: {
-    color: 'black',
-  },
-  goalsContainer: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  goalsTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  goalBox: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    marginBottom: 10,
-  },
-  noGoalsText: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginTop: 20,
+  strikeCard: {
+    margin: 10,
+    width: "90%",
+    height: 175,
+    backgroundColor: 'white'
   },
 });
 
