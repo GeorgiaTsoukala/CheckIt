@@ -6,8 +6,6 @@ import { auth, datab } from '../firebase';
 import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryLegend, VictoryPie, VictoryScatter, VictoryTheme } from "victory-native";
 import { Divider, SegmentedButtons } from 'react-native-paper';
 
-const { width } = Dimensions.get('window');
-
 const VisualizationsScreen = () => {
   const [viewModeBar, setViewModeBar] = useState('days') // For Bar plot, initially set to 'days'
   const [goals, setGoals] = useState([])
@@ -20,6 +18,7 @@ const VisualizationsScreen = () => {
   const [barDailyData, setBarDailyData] = useState([]) //Daily Data for bar plot
   const [barMonthlyData, setBarMonthlyData] = useState([]) //Monthly Data for bar plot
 
+  const pieColorScale = ['#A2B1F7', '#FFCD58', '#A46AB4', '#5EBAB1', '#FFA256'];
 
   // Call fetchAllGoalsAndData when component mounts
   useEffect(() => {
@@ -227,7 +226,7 @@ const VisualizationsScreen = () => {
           })
         }
       })
-// hello
+
       const pieplotData = []
       for (const key in dataPie) {
         pieplotData.push({x: key, y: dataPie[key]})
@@ -266,13 +265,11 @@ const VisualizationsScreen = () => {
   useEffect(() => {
     updateBarData();
   }, [viewModeBar]);
-
-  const pieColorScale = ["tomato", "orange", "gold"];
-
+ 
   return (
     <View style = {globalStyles.body}>
       <View style = {globalStyles.center}>
-        <Text style = {globalStyles.title}>Your Progress</Text>
+        <Text style = {[globalStyles.title, {marginTop: 45}]}>Your Progress</Text>
       </View>
 
       {/* diagrams */}
@@ -371,7 +368,7 @@ const VisualizationsScreen = () => {
                     // tickValues specifies both the number of ticks and where
                     // they are placed on the axis
                     tickValues={[1, 2, 3, 4, 5]} 
-                    tickFormat={["very sad", "sad", "neutral", "happy", "very happy"]}
+                    tickFormat={["Very Sad", "Sad", "Neutral", "Happy", "Very Happy"]}
                     style={{
                       tickLabels: { fontSize: 12, fill: colors.grey600 },
                       // axis: { stroke: "transparent" }, // Hide the axis line
@@ -393,7 +390,7 @@ const VisualizationsScreen = () => {
                     }}
                   />
                   <VictoryScatter
-                    style={{ data: { fill: "#c43a81" }, labels: { fill: "white", fontSize: 10}}}
+                    style={{ data: { fill: "#A46AB4" }, labels: { fill: "white", fontSize: 10}}} //#c43a81
                     bubbleProperty="amount"
                     maxBubbleSize={15}
                     minBubbleSize={5}
@@ -413,7 +410,7 @@ const VisualizationsScreen = () => {
           {/* third diagram */}
           <View>
             <View style={globalStyles.center}>  
-              <Text style={styles.plotTitle}>Pie title</Text>
+              <Text style={styles.plotTitle}>Goal Accomplishment Distribution</Text>
             </View>
           {loading ?
               <View style={{flex: 1, justifyContent:'center'}}>
