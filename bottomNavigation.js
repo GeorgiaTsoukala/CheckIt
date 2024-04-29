@@ -5,6 +5,7 @@ import HomeScreen from "./screens/HomeScreen";
 import ChecklistScreen from "./screens/ChecklistScreen";
 import VisualizationsScreen from "./screens/VisualizationsScreen";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { colors } from './globalStyles';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,14 +33,14 @@ const BottomNavigation = () => {
                 size={24}
                 style={{
                   alignSelf: "center",
-                  color: focused ? "red" : "black",
+                  color: focused ? "black" : colors.grey400,
                 }}
               />
               <Text
                 style={{
                   fontSize: 16,
                   alignSelf: "center",
-                  color: focused ? "red" : "black",
+                  color: focused ? "black" : colors.grey400,
                 }}
               >
                 Home
@@ -60,14 +61,14 @@ const BottomNavigation = () => {
                 size={24}
                 style={{
                   alignSelf: "center",
-                  color: focused ? "red" : "black",
+                  color: focused ? "black" : colors.grey400,
                 }}
               />
               <Text
                 style={{
                   fontSize: 16,
                   alignSelf: "center",
-                  color: focused ? "red" : "black",
+                  color: focused ? "black" : colors.grey400,
                 }}
               >
                 Checklist
@@ -88,14 +89,14 @@ const BottomNavigation = () => {
                 size={24}
                 style={{
                   alignSelf: "center",
-                  color: focused ? "red" : "black",
+                  color: focused ? "black" : colors.grey400,
                 }}
               />
               <Text
                 style={{
                   fontSize: 16,
                   alignSelf: "center",
-                  color: focused ? "red" : "black",
+                  color: focused ? "black" : colors.grey400,
                 }}
               >
                 Reflection
