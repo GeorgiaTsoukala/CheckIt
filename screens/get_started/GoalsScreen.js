@@ -1,22 +1,19 @@
-import { StyleSheet, Text, TouchableOpacity, View, Dimensions, Image, FlatList, ScrollView } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View, FlatList, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import Carousel, { Pagination } from 'react-native-snap-carousel';
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { auth, datab } from '../../firebase';
 import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
 import Toast from 'react-native-simple-toast';
-import globalStyles, { MyCheckbox, colors } from '../../globalStyles';
+import globalStyles, { MyCheckbox, catIcons, colors } from '../../globalStyles';
 import { Button, Chip, Divider } from 'react-native-paper';
 
 const GoalsScreen = () => {
   const navigation = useNavigation();
-  const carouselRef = useRef(null);
 
   const [categories, setCategories] = useState([]); //stores selected categories
   const [filteredData, setFilteredData] = useState([]); //stores data (title:..., goals:[...]) of chosen categories
   const [goalStates, setGoalStates] = useState({}); //stores checkboxes states
-  const [page, setPage] = useState(0); //stores carousel paging
 
   const [selectedCategory, setSelectedCategory] = useState(null); //selected category from Chip to be displayed
 
@@ -73,14 +70,6 @@ const GoalsScreen = () => {
     'Intellect': colors.intellect
   }
 
-  const catIcons = {
-    'Productivity': 'lightbulb-on-outline', 
-    'Health': 'heart-plus-outline', 
-    'Finance': 'hand-coin-outline', 
-    'Intellect': 'drama-masks', 
-    'Creativity': 'lightbulb-on-outline'
-  };
-
   const handleDone = async () => {
     try {
       let emptyCategory = false;
@@ -129,7 +118,7 @@ const GoalsScreen = () => {
       
 
         {/* categories */}
-        <ScrollView horizontal>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginLeft: 20, flexGrow: 1}}>
             {categories.map((key) => (
               <Chip

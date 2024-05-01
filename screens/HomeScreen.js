@@ -3,8 +3,8 @@ import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { signOut } from 'firebase/auth';
 import { auth, datab } from '../firebase';
-import { MaterialIcons } from '@expo/vector-icons';
-import globalStyles, { colors } from '../globalStyles';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import globalStyles, { catIcons, colors } from '../globalStyles';
 import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryStack} from "victory-native";
 import { collection, doc, getDoc, getDocs, orderBy, query, where } from 'firebase/firestore';
 import { Card, Chip, Divider, MD3Colors, ProgressBar, Title } from 'react-native-paper';
@@ -20,6 +20,8 @@ const HomeScreen = () => {
   const [streak, setStreak] = useState(0); // holds the streak information
 
   useEffect(() => {
+    // setSelectedCategory('Health');
+
     updateScreen();
     fetchCatGoals(); 
     getCardData();
@@ -175,13 +177,17 @@ const HomeScreen = () => {
         <Text style={globalStyles.subtitle}>You are doing great so far!</Text>
 
         {/* categories */}
-        <ScrollView horizontal>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom : 10}}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 24}}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginLeft: 20}}>
             {Object.keys(catGoals).map((key) => (
               <Chip
                 theme={{colors: {secondaryContainer: colors.health}}}
+                icon={({ size, color }) => (
+                    <MaterialCommunityIcons name={catIcons[key]} size={20} color="#000" />
+                )}
+                rippleColor={'transparent'}
                 key={key}
-                style={{ margin: 4 }}
+                style={{marginRight: 8, borderRadius: 50, paddingHorizontal: 16, paddingVertical: 10, fontSize:24}}
                 selected={selectedCategory === key}
                 onPress={() => handleChipPress(key)}
                 disabled={key !== 'Health'}
@@ -193,10 +199,10 @@ const HomeScreen = () => {
         </ScrollView>
 
         {/* goal cards */}
-        <ScrollView horizontal>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {selectedCategory &&
             catGoals[selectedCategory].map((goal, index) => (
-              <Card mode="contained" key={index} style={styles.card}>
+              <Card mode="contained" key={index} style={[styles.card, index == 0 && {marginLeft: 20}]}>
                 <Card.Title
                   title="This Week"
                   subtitle={goal}
@@ -240,7 +246,7 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
   card: {
-    margin: 10,
+    marginHorizontal: 10,
     width: 175,
     height: 175,
     backgroundColor: 'white'
@@ -260,7 +266,8 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   strikeCard: {
-    margin: 10,
+    marginTop: 24,
+    marginHorizontal: 10,
     width: "90%",
     height: 175,
     backgroundColor: 'white'

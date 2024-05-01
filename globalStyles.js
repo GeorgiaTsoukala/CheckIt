@@ -16,6 +16,14 @@ export const colors = {
     creativity: '#FDA5C5'
   };
 
+export const catIcons = {
+    'Productivity': 'lightbulb-on-outline', 
+    'Health': 'heart-plus-outline', 
+    'Finance': 'hand-coin-outline', 
+    'Intellect': 'drama-masks', 
+    'Creativity': 'lightbulb-on-outline'
+  };
+
 export const MyCheckbox = ({myBgColor, myColor}) => {
     return (
         <View style={{backgroundColor: myBgColor, borderRadius: 45, padding: 8}}>
