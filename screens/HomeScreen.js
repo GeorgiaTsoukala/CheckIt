@@ -20,7 +20,7 @@ const HomeScreen = () => {
   const [streak, setStreak] = useState(0); // holds the streak information
 
   useEffect(() => {
-    // setSelectedCategory('Health');
+    setSelectedCategory('Health');
 
     updateScreen();
     fetchCatGoals(); 
@@ -200,7 +200,7 @@ const HomeScreen = () => {
 
         {/* goal cards */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {selectedCategory &&
+          {catGoals[selectedCategory] &&
             catGoals[selectedCategory].map((goal, index) => (
               <Card mode="contained" key={index} style={[styles.card, index == 0 && {marginLeft: 20}]}>
                 <Card.Title
@@ -218,11 +218,12 @@ const HomeScreen = () => {
                   />
                 </Card.Content>
               </Card>
-            ))}
+            ))
+          }
         </ScrollView>
 
         {/* strike */}
-        {selectedCategory && (
+        {catGoals[selectedCategory] && (
           <Card mode="contained" style={styles.strikeCard}>
             <Card.Title
               title="Your current streak"
