@@ -20,8 +20,6 @@ const GoalsScreen = () => {
 
   useEffect(() => {
 
-    setSelectedCategory('Health')
-
     const fetchCategories = async () => {
       try {
         const querySnapshot = await getDocs(collection(datab, "users", auth.currentUser.uid, "categories"));
@@ -30,6 +28,7 @@ const GoalsScreen = () => {
           categoryList.push(doc.id);  
         });
         setCategories(categoryList);
+        setSelectedCategory(categoryList[0])
       } catch (error) {
         console.error('Error fetching selected categories:', error);
       }
@@ -105,7 +104,9 @@ const GoalsScreen = () => {
 
   // Toggles the selection state of a category
   const handleChipPress = (category) => {
-    setSelectedCategory((prevCategory) => (prevCategory === category ? null : category));
+    if (selectedCategory !== category) {
+      setSelectedCategory((prevCategory) => (prevCategory === category ? null : category));
+    }
   };
 
   return (

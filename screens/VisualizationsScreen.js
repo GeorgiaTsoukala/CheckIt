@@ -285,7 +285,9 @@ const VisualizationsScreen = () => {
 
    // Toggles the selection state of a category
   const handleChipPress = (category) => {
-    setSelectedCategory((prevCategory) => (prevCategory === category ? null : category));
+    if (selectedCategory !== category) {
+      setSelectedCategory((prevCategory) => (prevCategory === category ? null : category));
+    }
   };
  
   return (

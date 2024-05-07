@@ -6,7 +6,7 @@ import moment from 'moment';
 import globalStyles, { colors } from '../globalStyles';
 import Card from './CardComponent';
 import Toast from 'react-native-simple-toast';
-import { Button, Modal, PaperProvider, Portal } from 'react-native-paper';
+import { ActivityIndicator, Button, Modal, PaperProvider, Portal } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
@@ -17,7 +17,8 @@ const ChecklistScreen = () => {
   const [selectedEmotion, setSelectedEmotion] = useState(null); 
   const [checkboxStates, setCheckboxStates] = useState([]); //track the checkbox states
   const [catGoals, setCatGoals] = useState({});  //get the selected categories from the database
-  const [savedData, setSavedData] = useState(false);
+  const [savedData, setSavedData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCatGoals = async () => {
@@ -55,6 +56,10 @@ const ChecklistScreen = () => {
     return days;
   }, []); 
 
+  useEffect(() => {
+    handleCalendarTap(new Date());
+  }, [catGoals]);
+
   // handle calendar date selection
   const handleCalendarTap = async (selectedDate) => {
     setValue(selectedDate);
@@ -70,12 +75,11 @@ const ChecklistScreen = () => {
     });
     setTsValue(combinedDateTime.toDate());
 
-    // // Get current time // alternative to the above
-    // const currentTime = new Date();
-
-    // // Set up timestamp with calendar's date and current time
-    // const tms = moment(`${moment(selectedDate).format('YYYY-MM-DD')} ${moment(currentTime).format('HH:mm:ss')}`).toDate()
-    // setTsValue(tms)
+    // Check if catGoals and catGoals['Health'] are defined
+    if (!catGoals || !catGoals['Health']) {
+      // console.error("Category goals are not yet loaded or 'Health' category goals are not set.");
+      return; // Exit early to avoid accessing undefined properties
+    }
 
     setCheckboxStates(Array(catGoals['Health'].length).fill(false));
 
@@ -119,14 +123,17 @@ const ChecklistScreen = () => {
 
           setCheckboxStates(checkboxStatesSaved);
 
-          // setFetchedData(doc.data().goals)
         });
       } else {
         setSavedData(false);
       }
 
+      setLoading(false);
+
     } catch (error) {
       console.error('Error fetching selected categories:', error);
+      setLoading(false);
+
     }
     
   }
@@ -270,6 +277,13 @@ const ChecklistScreen = () => {
             })}
           </View>
         </View>
+
+        {loading ? (
+          <View style={{paddingTop: 50}}>
+            <ActivityIndicator size="large" color="black" />
+          </View>
+        ) : (
+          <>
       
         {/* header */}
         { savedData ?
@@ -284,7 +298,7 @@ const ChecklistScreen = () => {
           </View>
         }
 
-        {/*category cards*/}      
+        {/*category cards*/}
         <FlatList
           style = {{flex: 1}}
           data={Object.entries(catGoals)}
@@ -292,7 +306,6 @@ const ChecklistScreen = () => {
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => <Card category={item[0]} goals={item[1]} checkboxStates={checkboxStates || []} onToggle={(index) => handleCheckboxToggle(index)} savedData={savedData}/>}
           ListFooterComponent={<View style={{ height: 160 }}/>}
-          // numColumns={2}
         />
 
         {/* button */}
@@ -302,7 +315,9 @@ const ChecklistScreen = () => {
               <Text style={globalStyles.btnText}>Save</Text>
             </Button>
           </View>
-        }      
+        }   
+        </>
+        )}
       </View>
     </PaperProvider>
   )
