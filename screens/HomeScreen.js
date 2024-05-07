@@ -124,25 +124,35 @@ const HomeScreen = () => {
       const dailyDataRef = collection(datab, "users", auth.currentUser.uid, "dailydata");
       const q = query(
         dailyDataRef,
-        orderBy('timestamp', 'asc') // ensure the data is ordered chronologically
+        orderBy('timestamp', 'desc') // ensure the data is ordered chronologically
       );
   
       const querySnapshot = await getDocs(q);
       let currentStreak = 0;
-      let previousDate = null;
-  
+      let previousDate = moment(new Date()).subtract(1, 'day').format('YYYY-MM-DD');
+
+      let firstDateSkipped = false;
+
       querySnapshot.forEach((doc) => {
+        // get the next date of the daily data
         const date = moment(doc.data().timestamp.toDate()).format('YYYY-MM-DD');
-  
+
+        
         // If the previous date is null or the consecutive date, increment the streak
-        if (!previousDate || moment(previousDate).add(1, 'day').isSame(date)) {
-          currentStreak++;
-        } else {
-          // If the streak is broken, reset the streak count
-          currentStreak = 1;
+        if (!firstDateSkipped && moment(date).isSame(moment(new Date()).format('YYYY-MM-DD'))) {
+          firstDateSkipped = true;
+          return; // Skip the first date
         }
   
-        previousDate = date;
+        // If the previous date is null or the consecutive date, increment the streak
+        if (!previousDate || moment(previousDate).isSame(date)) {
+          console.log('prevDate', previousDate)
+          currentStreak++;
+        }
+  
+        // go to the previous date
+        previousDate = moment(previousDate).subtract(1, 'day').format('YYYY-MM-DD');
+
       });
   
       setStreak(currentStreak);
@@ -183,7 +193,7 @@ const HomeScreen = () => {
               <Chip
                 theme={{colors: {secondaryContainer: colors.health}}}
                 icon={({ size, color }) => (
-                    <MaterialCommunityIcons name={catIcons[key]} size={20} color="#000" />
+                    <MaterialCommunityIcons name={catIcons[key]} size={20} color= {key === 'Health' ? "#000" : 'grey'} />
                 )}
                 rippleColor={'transparent'}
                 key={key}
@@ -232,10 +242,12 @@ const HomeScreen = () => {
               subtitleStyle={{ color: 'black', fontSize: 14, fontWeight: 'bold' }}
             />
             <Card.Content style={styles.cardContent}>
-              <Text style={styles.progressText}>{streak}</Text>              
+              <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center'}}>
+                <Text style={{fontSize: 35, fontWeight: 'bold'}}>{streak}</Text>
+                <MaterialCommunityIcons name="fire" size={35} color="black"/>
+              </View>        
             </Card.Content>           
           </Card>
-          
         )}
 
       </View>      
@@ -270,7 +282,6 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginHorizontal: 10,
     width: "90%",
-    height: 175,
     backgroundColor: 'white'
   },
 });

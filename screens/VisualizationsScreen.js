@@ -299,19 +299,18 @@ const VisualizationsScreen = () => {
 
       {newUser ? 
         <View style = {globalStyles.center}>
-        <Text style = {[globalStyles.subtitle, {width: '90%', marginTop: 60}]}>You haven't checked any goals yet!</Text>
-      </View>
+          <Text style = {[globalStyles.subtitle, {width: '90%', marginTop: 60}]}>You haven't checked any goals yet!</Text>
+        </View>
       : (
-        <View> 
+        <View style = {globalStyles.center}> 
           {/* categories */}
-          {/* style:{{marginTop: 24, marginBottom: 16}} */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom: 16}}>
-            <View style={{ flexDirection: 'row', marginLeft: 20}}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginLeft: 20, height: 60}}>
               {categories.map((key) => (
                 <Chip
                   theme={{colors: {secondaryContainer: colors.health}}}
                   icon={({ size, color }) => (
-                      <MaterialCommunityIcons name={catIcons[key]} size={20} color="#000" />
+                      <MaterialCommunityIcons name={catIcons[key]} size={20} color={key === 'Health' ? "#000" : 'grey'} />
                   )}
                   rippleColor={'transparent'}
                   key={key}
@@ -337,7 +336,7 @@ const VisualizationsScreen = () => {
                   <ActivityIndicator size="large" color="#63086B" />
                 </View>
               : (
-                <View style={styles.container}>
+                <View>
                   <VictoryChart
                     // domainPadding will add space to each side of VictoryBar to
                     // prevent it from overlapping the axis
@@ -391,7 +390,7 @@ const VisualizationsScreen = () => {
               )}
             </View>
 
-            <Divider />
+            <Divider style={{marginHorizontal: 20}} />
 
             {/* second diagram */}
             <View>
@@ -403,7 +402,7 @@ const VisualizationsScreen = () => {
                   <ActivityIndicator size="large" color="#63086B" />
                 </View>
               : (
-                <View style={styles.container}>
+                <View>
                   <VictoryChart
                     // domainPadding will add space to each side of VictoryBar to
                     // prevent it from overlapping the axis
@@ -453,7 +452,7 @@ const VisualizationsScreen = () => {
               )}
             </View>
 
-            <Divider />
+            <Divider style={{marginHorizontal: 20}}/>
 
             {/* third diagram */}
             <View>
@@ -512,12 +511,6 @@ const VisualizationsScreen = () => {
 export default VisualizationsScreen
 
 const styles = StyleSheet.create({
-   container: {
-    // padding:10
-    // flex: 1,
-    // justifyContent: "center",
-    // alignItems: "center",
-  },
   plotTitle: {
     width: '90%',
     marginTop: 20,
