@@ -127,7 +127,7 @@ const VisualizationsScreen = () => {
       for (const day in complPercent) {
         barplotData.push({ tag: day, value: complPercent[day]})
       }
-      //console.log('here', barplotData)
+
       setBarDailyData(barplotData)
       setBarData(barplotData)
 
@@ -193,7 +193,7 @@ const VisualizationsScreen = () => {
       for (const month in complPercent) {
         barplotData.push({ tag: month, value: complPercent[month]})
       }
-      //console.log('here month', barplotData)
+
       setBarMonthlyData(barplotData)
     }
 
@@ -227,7 +227,7 @@ const VisualizationsScreen = () => {
         const [key1, key2] = key.split('-')
         scatterplotData.push({ emotion: emotionMap[key1], value: parseInt(key2), amount: pairCount[key]})
       }
-      // console.log('here Scatter', scatterplotData)
+
       setScatterData(scatterplotData)
     }
 
@@ -249,7 +249,7 @@ const VisualizationsScreen = () => {
       for (const key in dataPie) {
         pieplotData.push({x: key, y: dataPie[key]})
       }
-      console.log('my data pie', pieplotData)
+
       setPieData(pieplotData)
     }
 
@@ -259,7 +259,6 @@ const VisualizationsScreen = () => {
         await getDataPerMonth();
         await getDataForScatter();
         await getDataForPie();
-        console.log('!!!!data', barDailyData, barMonthlyData)
         
       } catch (error) {
         console.error('Error fetching the selected goals and data:', error);

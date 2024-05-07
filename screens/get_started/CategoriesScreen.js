@@ -45,8 +45,6 @@ const ChecklistScreen = () => {
           await Promise.all(deletePromises);
       }
 
-      console.log('Pressed Next');
-
       // Then add the selected categories to the database
       const checkedCategories = categories.filter(category => category.isChecked).map(category => category.name);
       const addCategoryPromises = checkedCategories.map(async (categoryName) => {
@@ -67,7 +65,7 @@ const ChecklistScreen = () => {
   return (
     <View style={globalStyles.body}>
       <View style={globalStyles.center}>
-        <Text style={globalStyles.title}>Get Started</Text>
+        <Text style={[globalStyles.title, {marginTop: 45}]}>Get Started</Text>
         <Text style={globalStyles.subtitle}>Let's select the categories you want to keep track of every day!</Text>
       </View>
 

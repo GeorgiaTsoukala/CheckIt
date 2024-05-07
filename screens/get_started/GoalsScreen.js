@@ -105,17 +105,14 @@ const GoalsScreen = () => {
 
   // Toggles the selection state of a category
   const handleChipPress = (category) => {
-    console.log(categories)
-    console.log(filteredData.find(item => item.title === category).goals)
     setSelectedCategory((prevCategory) => (prevCategory === category ? null : category));
   };
 
   return (
     <View style={globalStyles.body}>
       <View style={globalStyles.center}>
-        <Text style={globalStyles.title}>Get Started</Text>
+        <Text style={[globalStyles.title, {marginTop: 45}]}>Get Started</Text>
         <Text style={globalStyles.subtitle}>Now that you have selected the categories, let’s make a list of goals! </Text>
-      
 
         {/* categories */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -138,7 +135,6 @@ const GoalsScreen = () => {
           </View>
         </ScrollView>
       </View>
-
 
       {/* goals */}
       <View style={styles.goalListContainer}>

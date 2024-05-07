@@ -136,7 +136,6 @@ const HomeScreen = () => {
       querySnapshot.forEach((doc) => {
         // get the next date of the daily data
         const date = moment(doc.data().timestamp.toDate()).format('YYYY-MM-DD');
-
         
         // If the previous date is null or the consecutive date, increment the streak
         if (!firstDateSkipped && moment(date).isSame(moment(new Date()).format('YYYY-MM-DD'))) {
@@ -146,11 +145,10 @@ const HomeScreen = () => {
   
         // If the previous date is null or the consecutive date, increment the streak
         if (!previousDate || moment(previousDate).isSame(date)) {
-          console.log('prevDate', previousDate)
           currentStreak++;
         }
   
-        // go to the previous date
+        // go to the previous calendar date
         previousDate = moment(previousDate).subtract(1, 'day').format('YYYY-MM-DD');
 
       });
