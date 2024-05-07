@@ -1,4 +1,4 @@
-import { FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
 import { StyleSheet, View } from 'react-native';
 
 // Define the color palette
@@ -26,8 +26,8 @@ export const catIcons = {
 
 export const MyCheckbox = ({myBgColor, myColor}) => {
     return (
-        <View style={{backgroundColor: myBgColor, borderRadius: 45, padding: 8}}>
-            <FontAwesome6 name="check" size={15} color={myColor} />
+        <View style={{backgroundColor: myBgColor, borderRadius: 50, padding: 6}}>
+            <MaterialCommunityIcons name="check" size={18} color={myColor} />
         </View>
     )
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dimensions, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { colors } from '../globalStyles';
+import { MyCheckbox, colors } from '../globalStyles';
 
 const { width } = Dimensions.get('window');
 
@@ -23,22 +23,11 @@ const Card = ({ category, goals, checkboxStates, onToggle, savedData }) => {
                 style={styles.containerCheckBox}
               >
                 {/* Display checkbox based on state */}
-                {checkboxStates[index] ?
-                  <View style={{backgroundColor: colors.health, borderRadius: 45, padding: 8}}>
-                    <FontAwesome6 name="check" size={15} color="black" />
-                  </View>
-                  // <MaterialIcons name="check-box" size={28} color="#8E2EA6" />
-                  :
-                  <View style={{backgroundColor: colors.grey50, borderRadius: 45, padding: 8}}>
-                    <FontAwesome6 name="check" size={15} color='#727272' />
-                  </View>
-                  // <MaterialIcons name="check-box-outline-blank" size={28} color="#8E2EA6" />
+                {checkboxStates[index] ? <MyCheckbox myBgColor={colors.health} myColor={"black"}></MyCheckbox>
+                  : <MyCheckbox myBgColor={colors.grey50} myColor={'#727272'}></MyCheckbox>
                 }
               </TouchableOpacity>
-              : <View style={{backgroundColor: '#ffffff', borderRadius: 45, padding: 8}}>
-                  <FontAwesome6 name="check" size={15} color="#727272" />
-                </View>
-              // <MaterialIcons name="check-box-outline-blank" size={28} color="grey" />
+              : <MyCheckbox myBgColor={'#ffffff'} myColor={"#727272"}></MyCheckbox>
             } 
               <Text style={styles.goalTxt}>{goal}</Text>
             </View>
